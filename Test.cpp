@@ -70,48 +70,13 @@ void Fun()
     lc.Display();
 }
 
-//TestA t(30); //全局对象先于main函数
 int main(void)
 {
-//    cout<<"Entering main..."<<endl;
-//    Outer o;
-//    o.Fun();
-//    o.FunStruct();
-//
-//    Outer::Inner i; // note: implicitly declared private here
-//    i.Func();
-//
-//    Fun();
-    //LocalClass lc;   // Error,局部类只能在定义它的函数体中使用
-
-//    TestA t;  // error: no matching constructor for initialization of 'TestA'
-//    t.Display();
-//
-//    TestA t2(10);
-//    t2.Display();
-
-//    TestA* t3 = new TestA(20); // new operation
-//    t3->Display();
-//
-//    delete t3;
-//
-//    TestA t4[2] = {100, 200};
-//
-//    TestA* t5 = new TestA(300);
-//    delete t5;
-//
-//    TestA* t6 = new TestA[2]; //数组
-//    //delete t6; //Demo(43373,0x1185abe00) malloc: *** error for object 0x7fcbe0c058d8: pointer being freed was not allocated
-//    delete[] t6;
-
-//    TestA t7;
-//    t7.~TestA(); //析构函数可以显式调用，但一般很少用。
-
     TestA t(10); // 带一个参数的构造函数，充当的是普通构造函数的功能
 
     t = 20;     // 将20这个整数赋值给t对象
-                // 1、调用转换构造函数将20这个整数转换成类类型（生成一个临时对象）
-                // 2、将临时对象赋值给t对象（调用的是=运算符）
+    // 1、调用转换构造函数将20这个整数转换成类类型（生成一个临时对象）
+    // 2、将临时对象赋值给t对象（调用的是=运算符）
     TestA t2;
 
 //    Initialzing 10
@@ -120,8 +85,59 @@ int main(void)
 //    Initialzing Default
 //    Destory 0
 //    Destory 20
+    return 0;
+}
 
-//    cout<<"Exiting main..."<<endl;
+int main33(void)
+{
+    TestA t7;
+    t7.~TestA(); //析构函数可以显式调用，但一般很少用。
+    return 0;
+}
+
+TestA t(30); //全局对象的构造先于main函数
+int main22(void)
+{
+    cout<<"Entering main..."<<endl;
+    cout<<"Exiting main..."<<endl;
+}
+
+int main11(void )
+{
+    TestA t;  // error: no matching constructor for initialization of 'TestA'
+    t.Display();
+
+    TestA t2(10);
+    t2.Display();
+
+    TestA* t3 = new TestA(20); // new operation
+    t3->Display();
+
+    delete t3;
+
+    TestA t4[2] = {100, 200};
+
+    TestA* t5 = new TestA(300);
+    delete t5;
+
+    TestA* t6 = new TestA[2]; //数组
+    //delete t6; //Demo(43373,0x1185abe00) malloc: *** error for object 0x7fcbe0c058d8: pointer being freed was not allocated
+    delete[] t6;
+
+}
+
+int main00(void)
+{
+
+    Outer o;
+    o.Fun();
+    o.FunStruct();
+
+    Outer::Inner i; // note: implicitly declared private here
+    i.Func();
+
+    Fun();
+    //LocalClass lc;   // Error,局部类只能在定义它的函数体中使用
 
     return 0;
 }
