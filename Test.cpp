@@ -74,13 +74,13 @@ void Fun()
 class Object
 {
 public:
-    Object()
+    Object(int num) : num_(num)
     {
-       cout<<"Object..."<<endl;
+       cout<<"Object "<<num<<"..."<<endl;
     }
     ~Object()
     {
-        cout<<"~Object..."<<endl;
+        cout<<"~Object "<<num_<<"..."<<endl;
     }
 private:
     int num_;
@@ -89,7 +89,7 @@ private:
 class Container
 {
 public:
-    Container()
+    Container(int obj1 = 0, int obj2 = 0) : obj1_(obj1), obj2_(obj2)
     {
         cout<<"Container..."<<endl;
     }
@@ -98,12 +98,13 @@ public:
         cout<<"~Container..."<<endl;
     }
 private:
-    Object obj_;
+    Object obj1_; //error: constructor for 'Container' must explicitly initialize the member 'obj_' which does not have a default constructor Container()
+    Object obj2_;
 };
 
 int main(void)
 {
-    Container c;
+    Container c(10, 20);
 
     return 0;
 }
