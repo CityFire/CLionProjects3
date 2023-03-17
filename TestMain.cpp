@@ -157,7 +157,42 @@ const TestA& TestFunc4(const TestA& t)
     return t;
 }
 
+class Empty
+{
+public:
+//    class Empty {}; // 空类默认产生的6个成员
+//    Empty() {} // 默认构造函数
+//    Empty(const Empty&);//默认拷贝构造函数
+//    ~Empty();  //默认析构函数
+//    Empty& operator=(const Empty& other); //默认复制运算符
+    Empty* operator&()  // 取址运算符
+    {
+        cout<<"AAAA"<<endl;
+        return this;
+    }
+
+    const Empty* operator&() const // 取址运算符const
+    {
+        cout<<"BBBB"<<endl;
+        return this;
+    }
+};
+
 int main(void)
+{
+    // 空类默认产生的成员
+    Empty e;
+    Empty* p = &e;   // 等价于e.operator&();  // 取值运算符
+
+    const Empty e2;
+    const Empty* p2 = &e2;    //取值运算符const
+
+    cout<<sizeof(Empty)<<endl; // 1
+
+    return 0;
+}
+
+int main999(void)
 {
     StringA s1("AAAA");
     s1.Display();
