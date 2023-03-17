@@ -5,6 +5,7 @@
 #include "TestA.h"
 #include "Clock.h"
 #include "StringA.h"
+#include "CountedObject.h"
 
 using namespace std;
 
@@ -178,7 +179,76 @@ public:
     }
 };
 
-int main(void)
+class TestDemo
+{
+public:
+    TestDemo(int y) : y_(y) {
+
+    }
+    ~TestDemo()
+    {
+
+    }
+    void testFun()
+    {
+        cout<<"x="<<x_<<endl;  //OK,非静态成员函数可以访问静态成员
+        TestStaticFun();
+    }
+    static void TestStaticFun()
+    {
+        cout<<"TestStaticFun..."<<endl;
+        //testFun();   //Error,静态成员函数不能访问非静态函数
+        //cout<<"y="<<y_<<endl; //Error,静态成员函数不能访问非静态成员
+    }
+
+//    static const int x_;  //静态成员的引用性说明
+    static int x_;  //静态成员的引用性说明
+    int y_;
+};
+
+//const int TestDemo::x_ = 200;  // 静态成员的定义性说明
+int TestDemo::x_ = 100;  // 静态成员的定义性说明
+
+int main(void )
+{
+    TestDemo t(10);
+    cout<<TestDemo::x_<<endl;
+    t.testFun();
+
+    cout<<t.x_<<endl;  // 可以访问，但不推荐这么使用
+
+    cout<< sizeof(TestDemo)<<endl;  // 类的大小计算   4
+    // 1.类的大小计算遵循前面学过的结构体对齐原则
+    // 2.类的大小与数据成员有关与成员函数无关
+    // 3.类的大小与静态数据成员无关
+    // 4.虚函数对类的大小的影响
+    // 5.虚继承对类的大小的影响
+
+    return 0;
+}
+
+int main1100(void) {
+
+//    cout<<CountedObject::count_<<endl;  // 默认值为0
+    cout<<CountedObject::GetCount()<<endl;
+    CountedObject co1;
+//    cout<<CountedObject::count_<<endl;
+    cout<<CountedObject::GetCount()<<endl;
+    CountedObject* co2 = new CountedObject;
+//    cout<<CountedObject::count_<<endl;
+    cout<<CountedObject::GetCount()<<endl;
+    delete co2;
+//    cout<<CountedObject::count_<<endl;
+    cout<<CountedObject::GetCount()<<endl;
+
+//    0
+//    1
+//    2
+//    1
+    return 0;
+}
+
+int main1000(void)
 {
     // 空类默认产生的成员
     Empty e;
