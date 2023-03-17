@@ -3,6 +3,7 @@
 //
 #include <iostream>
 #include "TestA.h"
+#include "Clock.h"
 using namespace std;
 
 class Outer
@@ -72,6 +73,15 @@ void Fun()
 
 int main(void)
 {
+    Clock c(23, 59, 59);
+    c.Display();
+    c.Update();
+    c.Display();
+    return 0;
+}
+
+int main55(void)
+{
     /*
     TestA t = 10;   // 等价于Test t(10); 这里的=不是运算符，表示初始化
 
@@ -127,7 +137,7 @@ int main33(void)
     return 0;
 }
 
-TestA t(30); //全局对象的构造先于main函数
+//TestA t(30); //全局对象的构造先于main函数
 int main22(void)
 {
     cout<<"Entering main..."<<endl;
