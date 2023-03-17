@@ -13,6 +13,9 @@ public:
     TestA();
     TestA(int num);
     void Display();
+
+    TestA& operator=(const TestA& other);
+
     ~TestA();
 private:
     int num_;

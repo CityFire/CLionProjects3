@@ -24,3 +24,12 @@ void TestA::Display() {
 TestA::~TestA() {
     cout<<"Destory "<<num_<<endl;
 }
+
+TestA &TestA::operator=(const TestA &other) {
+    cout<<"TestA::operator="<<endl;
+    if (this == &other)
+        return *this;
+
+    num_ = other.num_;
+    return *this;
+}
