@@ -102,7 +102,33 @@ private:
     Object obj2_;
 };
 
+// const成员的初始化只能在构造函数初始化列表中进行
+class SubObject
+{
+public:
+    SubObject(int num) : num_(num), kNum_(100)
+    {
+        //kNum_ = 100;
+        cout<<"Object "<<num<<"..."<<"kNum "<<kNum_<<"..."<<endl;
+    }
+    ~SubObject()
+    {
+        cout<<"~Object "<<num_<<"..."<<endl;
+    }
+private:
+    int num_;
+    const int kNum_;
+};
+
 int main(void)
+{
+    SubObject obj(20);
+
+    return 0;
+}
+
+
+int main777(void)
 {
     Container c(10, 20);
 
