@@ -71,7 +71,44 @@ void Fun()
     lc.Display();
 }
 
+class Object
+{
+public:
+    Object()
+    {
+       cout<<"Object..."<<endl;
+    }
+    ~Object()
+    {
+        cout<<"~Object..."<<endl;
+    }
+private:
+    int num_;
+};
+
+class Container
+{
+public:
+    Container()
+    {
+        cout<<"Container..."<<endl;
+    }
+    ~Container()
+    {
+        cout<<"~Container..."<<endl;
+    }
+private:
+    Object obj_;
+};
+
 int main(void)
+{
+    Container c;
+
+    return 0;
+}
+
+int main66(void)
 {
     Clock c(23, 59, 59);
     c.Display();
