@@ -103,13 +103,17 @@ private:
 };
 
 // const成员的初始化只能在构造函数初始化列表中进行
+// 引用成员的初始化也只能在构造函数初始化列表中进行
+// 对象成员（对象所对应的类没有默认构造函数）的初始化，也只能在构造函数初始化列表中进行
 class SubObject
 {
 public:
-    SubObject(int num) : num_(num), kNum_(100)
+    SubObject(int num) : num_(num), kNum_(100), refNum_(num_)
     {
         //kNum_ = 100;
-        cout<<"Object "<<num<<"..."<<"kNum "<<kNum_<<"..."<<endl;
+        refNum_ = num;
+        cout<<"Object "<<num<<"..."<<endl;
+        cout<<"kNum_ "<<kNum_<<"..."<<"refNum_ "<<refNum_<<"..."<<endl;
     }
     ~SubObject()
     {
@@ -118,6 +122,7 @@ public:
 private:
     int num_;
     const int kNum_;
+    int& refNum_;
 };
 
 int main(void)
