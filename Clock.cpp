@@ -10,10 +10,15 @@ void Clock::Display() {
     cout<<hour_<<":"<<minute_<<":"<<second_<<endl;
 }
 
-Clock::Clock(int hour, int minute, int second) {
-    hour_ = hour;
-    minute_ = minute;
-    second_ = second;
+//构造函数初始化列表
+//推荐在构造函数初始化列表中进行初始化
+//构造函数的执行分为两个阶段
+  //初始化段
+  //普通计算段
+Clock::Clock(int hour, int minute, int second) : hour_(hour), minute_(minute), second_(second) {
+//    hour_ = hour;
+//    minute_ = minute;
+//    second_ = second;
     cout<<"Clock::Clock"<<endl;
 }
 
