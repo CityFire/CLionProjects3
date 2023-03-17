@@ -4,6 +4,8 @@
 #include <iostream>
 #include "TestA.h"
 #include "Clock.h"
+#include "StringA.h"
+
 using namespace std;
 
 class Outer
@@ -134,7 +136,98 @@ private:
     int& refNum_;
 };
 
+void TestFun(const TestA t)
+{
+
+}
+
+void TestFun2(const TestA& t)
+{
+
+}
+
+TestA TestFunc3(const TestA& t)
+{
+    return t;
+}
+
+const TestA& TestFunc4(const TestA& t)
+{
+    //return const_cast<TestA&>(t);
+    return t;
+}
+
 int main(void)
+{
+    StringA s1("AAAA");
+    s1.Display();
+    StringA s2 = s1;   // 调用默认的拷贝构造函数
+                       // 系统提供的默认拷贝构造函数实施的是浅拷贝 s2.str_ = s1.str_  导致释放两次 error for object 0x7f8f8dc05c20: pointer being freed was not allocated
+
+    StringA s3;
+    s3.Display();
+    s3 = s2;        // 调用等号运算符  赋值操作
+                      // 系统提供的默认等号运算符实施的是浅拷贝  s3.str_ = s2.str_
+                      // s3.operator=(s2);
+
+    // 要让对象是独一无二的，我们要禁止拷贝
+    // 方法是将拷贝构造函数与=运算符声明为私有，并且不提供他们的实现
+
+    return 0;
+}
+
+int main9999(void)
+{
+    TestA t(10);
+
+//    TestFun(t); // 会创建 调用拷贝构造函数
+//    TestFun2(t);  // 引用 共用 不会创建
+
+    //TestFunc3(t); //临时对象 立即销毁
+
+    //t = TestFunc3(t); //临时对象 赋值给t后立即销毁
+//    Initialzing 10
+//    Initlializing with other 10
+//    TestA::operator=
+//    Destory 10
+//    ........
+//    Destory 10
+
+    //TestA t2 = TestFunc3(t);
+
+    //TestA& t2 = TestFunc3(t); // 编译不通过
+
+    //TestA t2 = TestFunc4(t);
+    //上面都是这种结果情况
+//    Initialzing 10
+//    Initlializing with other 10
+//    ........
+//    Destory 10
+//    Destory 10
+
+    const TestA& t2 = TestFunc4(t);
+//    Initialzing 10
+//    ........
+//    Destory 10
+
+    cout<<"........"<<endl;
+
+
+
+    return 0;
+}
+
+int main99(void)
+{
+    TestA t(10);
+ //   TestA t2(t);    // 调用拷贝构造函数 默认缺省拷贝构造函数
+    TestA t2 = t;     // 等价于TestA t2(t);
+
+
+    return 0;
+}
+
+int main88(void)
 {
     SubObject obj1(10);
     SubObject obj2(20);

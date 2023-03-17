@@ -7,14 +7,19 @@
 using namespace std;
 
 // 不带参数的构造函数称为默认构造函数
-TestA::TestA() {
-    num_ = 0;
+TestA::TestA() : num_(0) {
+    //num_ = 0;
     cout<<"Initialzing Default"<<endl;
 }
 
-TestA::TestA(int num) {
-    num_ = num;
+TestA::TestA(int num) : num_(num) {
+    //num_ = num;
     cout<<"Initialzing "<<num_<<endl;
+}
+
+TestA::TestA(const TestA &other) : num_(other.num_) {
+    //num_ = other.num_;
+    cout<<"Initlializing with other "<<num_<<endl;
 }
 
 void TestA::Display() {
