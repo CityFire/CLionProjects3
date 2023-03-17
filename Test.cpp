@@ -72,6 +72,7 @@ void Fun()
 
 int main(void)
 {
+    /*
     TestA t = 10;   // 等价于Test t(10); 这里的=不是运算符，表示初始化
 
     t = 20;        // 赋值操作
@@ -84,6 +85,7 @@ int main(void)
 
     TestA t2;
     t = t2;   // 赋值操作 t.operator=(t2)
+     */
 
 //Initialzing 10
 //Initialzing 20
@@ -93,6 +95,9 @@ int main(void)
 //TestA::operator=
 //Destory 0
 //Destory 0
+
+    TestA t = 10;
+    t = 20;
 
     return 0;
 }
