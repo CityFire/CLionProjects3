@@ -288,7 +288,7 @@ private:
 Singleton::Garbo Singleton::garbo_;
 Singleton* Singleton::instance_;
 
-int main(void)
+int main3322(void)
 {
 //    Singleton s1;
 //    Singleton s2;

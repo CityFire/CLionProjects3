@@ -1,7 +1,41 @@
 #include <iostream>
 #include <vector>
+using namespace std;
 
 void testFunc1();
+
+class Singleton2
+{
+public:
+    static Singleton2& GetInstance()
+    {
+        static Singleton2 instance; // 局部静态对象
+        return instance;
+    }
+    ~Singleton2()
+    {
+        cout<<"~Singleton2..."<<endl;
+    }
+private:
+    Singleton2(const Singleton2& other);
+    Singleton2& operator=(const Singleton2& other);
+    Singleton2()
+    {
+        cout<<"Singleton2..."<<endl;
+    }
+    static Singleton2* instance_;
+};
+
+// 非线程安全的单例
+int main(void)
+{
+    //auto_ptr //智能指针
+
+    Singleton2& s1 = Singleton2::GetInstance();
+    Singleton2& s2 = Singleton2::GetInstance();
+
+    return 0;
+}
 
 //int main()
 //{
