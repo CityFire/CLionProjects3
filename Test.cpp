@@ -108,16 +108,25 @@ private:
 class SubObject
 {
 public:
-    SubObject(int num) : num_(num), kNum_(100), refNum_(num_)
+    enum E_TYPE
+    {
+        TYPE_A = 100,
+        TYPE_B = 200,
+    };
+    SubObject(int num = 0) : num_(num), kNum_(num), refNum_(num_)
     {
         //kNum_ = 100;
-        refNum_ = num;
+        //refNum_ = num;
         cout<<"Object "<<num<<"..."<<endl;
         cout<<"kNum_ "<<kNum_<<"..."<<"refNum_ "<<refNum_<<"..."<<endl;
     }
     ~SubObject()
     {
         cout<<"~Object "<<num_<<"..."<<endl;
+    }
+    void DisplayKNum()
+    {
+        cout<<"KNum="<<kNum_<<endl;
     }
 private:
     int num_;
@@ -127,7 +136,14 @@ private:
 
 int main(void)
 {
-    SubObject obj(20);
+    SubObject obj1(10);
+    SubObject obj2(20);
+    obj1.DisplayKNum();
+    obj2.DisplayKNum();
+
+    cout<<obj1.TYPE_A<<endl;
+    cout<<obj2.TYPE_A<<endl;
+    cout<<SubObject::TYPE_A<<endl;
 
     return 0;
 }
