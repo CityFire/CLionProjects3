@@ -73,7 +73,7 @@ void Fun()
 //TestA t(30); //全局对象先于main函数
 int main(void)
 {
-    cout<<"Entering main..."<<endl;
+//    cout<<"Entering main..."<<endl;
 //    Outer o;
 //    o.Fun();
 //    o.FunStruct();
@@ -104,10 +104,24 @@ int main(void)
 //    //delete t6; //Demo(43373,0x1185abe00) malloc: *** error for object 0x7fcbe0c058d8: pointer being freed was not allocated
 //    delete[] t6;
 
-    TestA t7;
-    t7.~TestA(); //析构函数可以显式调用，但一般很少用。
+//    TestA t7;
+//    t7.~TestA(); //析构函数可以显式调用，但一般很少用。
 
-    cout<<"Exiting main..."<<endl;
+    TestA t(10); // 带一个参数的构造函数，充当的是普通构造函数的功能
+
+    t = 20;     // 将20这个整数赋值给t对象
+                // 1、调用转换构造函数将20这个整数转换成类类型（生成一个临时对象）
+                // 2、将临时对象赋值给t对象（调用的是=运算符）
+    TestA t2;
+
+//    Initialzing 10
+//    Initialzing 20
+//    Destory 20
+//    Initialzing Default
+//    Destory 0
+//    Destory 20
+
+//    cout<<"Exiting main..."<<endl;
 
     return 0;
 }
