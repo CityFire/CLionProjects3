@@ -72,6 +72,33 @@ void Fun()
 
 int main(void)
 {
+    TestA t = 10;   // 等价于Test t(10); 这里的=不是运算符，表示初始化
+
+    t = 20;        // 赋值操作
+
+//    Initialzing 10
+//    Initialzing 20
+//    TestA::operator=
+//    Destory 20
+//    Destory 20
+
+    TestA t2;
+    t = t2;   // 赋值操作 t.operator=(t2)
+
+//Initialzing 10
+//Initialzing 20
+//TestA::operator=
+//Destory 20
+//Initialzing Default
+//TestA::operator=
+//Destory 0
+//Destory 0
+
+    return 0;
+}
+
+int main44(void)
+{
     TestA t(10); // 带一个参数的构造函数，充当的是普通构造函数的功能
 
     t = 20;     // 将20这个整数赋值给t对象
