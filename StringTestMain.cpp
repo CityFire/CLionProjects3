@@ -3,13 +3,32 @@
 //
 #include <string>
 #include <iostream>
+#include "StringUtil.h"
 using namespace std;
+
+int main(void)
+{
+    string s = "    abcd    ";
+    StringUtil::LTrim(s);
+    cout<<"["<<s<<"]"<<endl;
+
+    s = "    abcd    ";
+    StringUtil::RTrim(s);
+    cout<<"["<<s<<"]"<<endl;
+
+    s = "    abcd    ";
+    StringUtil::Trim(s);
+    cout<<"["<<s<<"]"<<endl;
+
+    return 0;
+}
+
 void fun(char *str)
 {
     cout<<str<<endl;
 }
 
-int main(void)
+int main12345(void)
 {
     string s1 = "abc";
     string s2("abcjjkkhuuguuu");
@@ -90,6 +109,7 @@ int main(void)
     if (last1 == string::npos)
         cout<<"not find any characters"<<endl;
     cout<<strinfo.substr(first1, last1 - first1 + 1)<<endl;
+
 
 
     return 0;
