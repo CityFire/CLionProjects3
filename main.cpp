@@ -27,7 +27,7 @@ private:
 };
 
 // 非线程安全的单例
-int main(void)
+int main8866(void)
 {
     //auto_ptr //智能指针
 
