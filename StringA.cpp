@@ -8,7 +8,15 @@
 #include <cstring>
 using namespace std;
 
-StringA::StringA(char *str)
+char *StringA::AllocAndCopy(const char *str) {
+    int len = strlen(str) + 1;
+    char* tmp = new char[len];
+    memset(tmp, 0, len);
+    strcpy(tmp, str);
+    return tmp;
+}
+
+StringA::StringA(const char *str)
 {
     str_ = AllocAndCopy(str);
 }
@@ -26,12 +34,16 @@ StringA& StringA::operator=(const StringA &other) {
     return *this;
 }
 
-char *StringA::AllocAndCopy(char *str) {
-    int len = strlen(str) + 1;
-    char* tmp = new char[len];
-    memset(tmp, 0, len);
-    strcpy(tmp, str);
-    return tmp;
+StringA& StringA::operator=(const char *str)
+{
+    delete[] str_;
+    str_ = AllocAndCopy(str);
+    return *this;
+}
+
+bool StringA::operator!() const
+{
+    return strlen(str_) != 0;
 }
 
 StringA::~StringA()
@@ -39,6 +51,6 @@ StringA::~StringA()
     delete[] str_;
 }
 
-void StringA::Display() {
+void StringA::Display() const {
     cout<<str_<<endl;
 }

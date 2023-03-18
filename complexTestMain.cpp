@@ -5,7 +5,7 @@
 #include <iostream>
 using namespace std;
 
-int main(void)
+int main0099(void)
 {
     Complex c1(3, 4);
     Complex c2(4, 6);
