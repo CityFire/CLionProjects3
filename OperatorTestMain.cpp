@@ -99,7 +99,7 @@ void operator delete[](void* p)
     free(p);
 }
 
-int main(void)
+int main7654(void)
 {
     TestBB* p1 = new TestBB(10);  // new operator = operator new + 构造函数的调用
     delete p1;
