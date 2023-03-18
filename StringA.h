@@ -8,20 +8,22 @@
 
 class StringA {
 public:
-    explicit StringA(const char* str = "");
+    StringA(const char* str = "");
     StringA(const StringA& other);
     StringA& operator=(const StringA& other);
     StringA& operator=(const char* str);
-    // 非运算符重载
+    // !运算符重载
     bool operator!() const;
     // []运算符重载
     char& operator[](unsigned int index);
     const char& operator[](unsigned int index) const;
 
+    friend StringA operator+(const StringA& s1, const StringA& s2);
     void Display() const;
     ~StringA(void);
 
 private:
+    StringA& Assign(const char* str);
     char* AllocAndCopy(const char* str);
     char* str_;
 };

@@ -53,5 +53,15 @@ int main(void)
     //ss2[2] = 'M';
     ss2.Display();
 
+    StringA ss3 = "xxx";
+    StringA ss4 = "yyy";
+
+    StringA ss5 = ss3 + ss4;
+    ss5.Display();
+
+//    StringA ss6 = "bbbb" + "aaa" + ss5 + "rrdfddd";
+    StringA ss6 = "aaa" + ss5 + "rrdfddd";
+    ss6.Display();
+
     return 0;
 }

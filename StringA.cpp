@@ -29,16 +29,12 @@ StringA& StringA::operator=(const StringA &other) {
     if (this == &other)
         return *this;
 
-    delete[] str_;
-    str_ = AllocAndCopy(other.str_);
-    return *this;
+    return Assign(other.str_);
 }
 
 StringA& StringA::operator=(const char *str)
 {
-    delete[] str_;
-    str_ = AllocAndCopy(str);
-    return *this;
+    return Assign(str);
 }
 
 bool StringA::operator!() const
@@ -57,6 +53,27 @@ char& StringA::operator[](unsigned int index)
 const char& StringA::operator[](unsigned int index) const
 {
     return str_[index];
+}
+
+//+运算符重载
+StringA operator+(const StringA& s1, const StringA& s2)
+{
+    int len = strlen(s1.str_) + strlen(s2.str_) + 1;
+    char* newstr = new char[len];
+    memset(newstr, 0, len);
+    strcpy(newstr, s1.str_);
+    strcat(newstr, s2.str_);
+
+    StringA tmp(newstr);
+    delete newstr;
+    return tmp;
+}
+
+StringA &StringA::Assign(const char *str)
+{
+    delete[] str_;
+    str_ = AllocAndCopy(str);
+    return *this;
 }
 
 StringA::~StringA()
