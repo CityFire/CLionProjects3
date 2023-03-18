@@ -14,6 +14,9 @@ public:
     StringA& operator=(const char* str);
     // 非运算符重载
     bool operator!() const;
+    // []运算符重载
+    char& operator[](unsigned int index);
+    const char& operator[](unsigned int index) const;
 
     void Display() const;
     ~StringA(void);

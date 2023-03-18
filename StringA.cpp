@@ -46,6 +46,19 @@ bool StringA::operator!() const
     return strlen(str_) != 0;
 }
 
+char& StringA::operator[](unsigned int index)
+{
+    return str_[index];
+    //non const 版本调用 const版本
+
+    return const_cast<char&>(static_cast<const StringA&>(*this)[index]);
+}
+
+const char& StringA::operator[](unsigned int index) const
+{
+    return str_[index];
+}
+
 StringA::~StringA()
 {
     delete[] str_;

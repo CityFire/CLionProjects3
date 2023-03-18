@@ -40,5 +40,18 @@ int main(void)
     notempty = !s4;
     cout<<notempty<<endl;
 
+    StringA ss1("abcdefg");
+
+    char ch = ss1[2];
+    cout<<ch<<endl;
+
+    ss1[2] = 'A';
+    ss1.Display();
+
+    const StringA ss2("background");
+    ch = ss2[2];
+    //ss2[2] = 'M';
+    ss2.Display();
+
     return 0;
 }
