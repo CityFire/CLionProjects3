@@ -285,10 +285,45 @@ private:
     static Garbo garbo_; // 利用对象的确定性析构
 };
 
+
+class TestB
+{
+public:
+    TestB(int x) : x_(x)
+    {
+
+    }
+    int GetX() const
+    {
+        cout<<"const GetX..."<<endl;
+        //x_ = 100;
+        return x_;
+    }
+    int GetX()
+    {
+        cout<<"GetX..."<<endl;
+        return x_;
+    }
+private:
+    int x_;
+};
+
+int main7766(void)
+{
+    const TestB t(10);
+    t.GetX();
+
+    TestB t2(20);
+    t2.GetX();
+
+    return 0;
+}
+
+
 Singleton::Garbo Singleton::garbo_;
 Singleton* Singleton::instance_;
 
-int main3322(void)
+int main1032(void)
 {
 //    Singleton s1;
 //    Singleton s2;
