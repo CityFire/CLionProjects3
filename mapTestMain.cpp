@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace  std;
 
-int main(void)
+int main33424(void)
 {
     // 插入到map容器内部的元素默认是按照key从小到大来排序。
     // key类型一定要重载<运算符
