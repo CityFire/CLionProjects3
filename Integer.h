@@ -17,6 +17,9 @@ public:
     Integer operator++(int n);
 //    friend Integer operator++(Integer& i, int n);
 
+    // 类型转换运算符
+    operator int();
+
     void Display() const;
 private:
     int n_;

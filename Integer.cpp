@@ -51,3 +51,8 @@ void Integer::Display() const
 {
     cout<<n_<<endl;
 }
+
+Integer::operator int()
+{
+    return n_;
+}
