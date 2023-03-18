@@ -65,7 +65,7 @@ public:
 private:
 };
 
-int main(void)
+int main000(void)
 {
     Point p1(3, 4);
     Point p2(6, 8);
