@@ -66,5 +66,11 @@ int main(void)
     ss3 += ss4;
     ss3.Display();
 
+    cout<<ss3<<endl;
+
+    StringA ss7;
+    cin>>ss7;
+    cout<<ss7<<endl;
+
     return 0;
 }

@@ -3,10 +3,10 @@
 //
 
 #include "StringA.h"
-#include <iostream>
 //#include <string>
 #include <cstring>
-using namespace std;
+//#include <iostream>
+//using namespace std;
 
 char *StringA::AllocAndCopy(const char *str) {
     int len = strlen(str) + 1;
@@ -82,6 +82,20 @@ StringA &StringA::operator+=(const StringA &other)
     delete str_;
     str_ = newstr;
     return *this;
+}
+
+ostream& operator<<(ostream& os, const StringA& str)
+{
+    os<<str.str_;
+    return os;
+}
+
+istream& operator>>(istream& is, StringA& str)
+{
+    char tmp[1024];
+    cin>>tmp;
+    str = tmp;
+    return is;
 }
 
 StringA &StringA::Assign(const char *str)
