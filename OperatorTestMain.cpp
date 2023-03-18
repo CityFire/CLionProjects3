@@ -6,12 +6,67 @@
 #include <iostream>
 using namespace std;
 
+class DBHelper
+{
+public:
+    DBHelper()
+    {
+        cout<<"DB..."<<endl;
+    }
+    ~DBHelper()
+    {
+        cout<<"~DB..."<<endl;
+    }
+    void Open()
+    {
+        cout<<"Open..."<<endl;
+    }
+    void Query()
+    {
+        cout<<"Query..."<<endl;
+    }
+    void Close()
+    {
+        cout<<"Close..."<<endl;
+    }
+};
+
+class DB
+{
+public:
+    DB()
+    {
+        db_ = new DBHelper;
+    }
+    ~DB()
+    {
+        delete db_;
+    }
+    //指针->运算符重载
+    DBHelper* operator->()
+    {
+        return db_;
+    }
+private:
+    DBHelper* db_;
+};
+
+int main(void) {
+
+    DB db;
+    db->Open();
+    db->Query();
+    db->Close();
+
+    return 0;
+}
+
 int add(int a, int b)
 {
     return a + b;
 }
 
-int main(void)
+int main111(void)
 {
     Integer n(100);
     n = 200;
