@@ -17,8 +17,10 @@ public:
     // []运算符重载
     char& operator[](unsigned int index);
     const char& operator[](unsigned int index) const;
-
+    //+运算符重载
     friend StringA operator+(const StringA& s1, const StringA& s2);
+    //+=运算符重载
+    StringA& operator+=(const StringA& other);
     void Display() const;
     ~StringA(void);
 

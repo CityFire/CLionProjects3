@@ -63,5 +63,8 @@ int main(void)
     StringA ss6 = "aaa" + ss5 + "rrdfddd";
     ss6.Display();
 
+    ss3 += ss4;
+    ss3.Display();
+
     return 0;
 }

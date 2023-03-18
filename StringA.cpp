@@ -58,15 +58,30 @@ const char& StringA::operator[](unsigned int index) const
 //+运算符重载
 StringA operator+(const StringA& s1, const StringA& s2)
 {
-    int len = strlen(s1.str_) + strlen(s2.str_) + 1;
+//    int len = strlen(s1.str_) + strlen(s2.str_) + 1;
+//    char* newstr = new char[len];
+//    memset(newstr, 0, len);
+//    strcpy(newstr, s1.str_);
+//    strcat(newstr, s2.str_);
+//
+//    StringA tmp(newstr);
+//    delete newstr;
+    StringA str = s1;
+    str += s2;
+    return str;
+}
+
+StringA &StringA::operator+=(const StringA &other)
+{
+    int len = strlen(str_) + strlen(other.str_) + 1;
     char* newstr = new char[len];
     memset(newstr, 0, len);
-    strcpy(newstr, s1.str_);
-    strcat(newstr, s2.str_);
+    strcpy(newstr, str_);
+    strcat(newstr, other.str_);
 
-    StringA tmp(newstr);
-    delete newstr;
-    return tmp;
+    delete str_;
+    str_ = newstr;
+    return *this;
 }
 
 StringA &StringA::Assign(const char *str)
