@@ -6,6 +6,131 @@
 #include <iostream>
 using namespace std;
 
+class TestBB
+{
+public:
+    TestBB(int n) : n_(n)
+    {
+        cout<<"TestBB(int n) : n_(n)"<<endl;
+    }
+    TestBB(const TestBB& other)
+    {
+        cout<<"TestBB(const TestBB& other)"<<endl;
+    }
+    ~TestBB()
+    {
+        cout<<"~TestBB..."<<endl;
+    }
+    void* operator new(size_t size)
+    {
+        cout<<"void* operator new(size_t size)"<<endl;
+        void* p = malloc(size);
+        return p;
+    }
+
+    void operator delete(void* p)
+    {
+        cout<<"void operator delete(void* p)"<<endl;
+        free(p);
+    }
+
+    void operator delete(void* p, size_t size)
+    {
+        cout<<"void operator delete(void* p, size_t size)"<<endl;
+        free(p);
+    }
+
+    void* operator new(size_t size, const char* file, long line)
+    {
+        cout<<file<<":"<<line<<endl;
+        void* p = malloc(size);
+        return p;
+    }
+
+    void operator delete(void* p, const char* file, long line)
+    {
+        cout<<file<<":"<<line<<endl;
+        free(p);
+    }
+
+    void operator delete(void* p, size_t size, const char* file, long line)
+    {
+        cout<<file<<":"<<line<<endl;
+        free(p);
+    }
+
+    // placement new
+    void* operator new(size_t size, void* p)
+    {
+        return p;
+    }
+
+    void operator delete(void *, void *)
+    {
+
+    }
+//private:
+    int n_;
+};
+
+void* operator new(size_t size)
+{
+    cout<<"global void* operator new(size_t size)"<<endl;
+    void* p = malloc(size);
+    return p;
+}
+
+void operator delete(void* p)
+{
+    cout<<"global void operator delete(void* p)"<<endl;
+    free(p);
+}
+
+void* operator new[](size_t size)
+{
+    cout<<"global void* operator new[](size_t size)"<<endl;
+    void* p = malloc(size);
+    return p;
+}
+
+void operator delete[](void* p)
+{
+    cout<<"global void operator delete[](void* p)"<<endl;
+    free(p);
+}
+
+int main(void)
+{
+    TestBB* p1 = new TestBB(10);  // new operator = operator new + 构造函数的调用
+    delete p1;
+
+    //char* str = new char;
+    //delete str;
+    char* str = new char[100];
+    delete[] str;
+
+    char chunk[10];
+
+    TestBB* p2 = new (chunk) TestBB(200);   // operator new(size_t, void *_Where)
+                                               // placement new 不分配内存
+    cout<<p2->n_<<endl;
+    p2->~TestBB();                             // 显式调用析构函数
+
+    //TestBB* p3 = (TestBB*)chunk;
+    TestBB* p3 = reinterpret_cast<TestBB*>(chunk);
+    cout<<p3->n_<<endl;
+
+//#ifdef _DEBUG
+//#define DEBUG_NEW new(__FILE__, __LINE__)
+//#define new DEBUG_NEW
+//#endif
+    TestBB* p4 = new(__FILE__, __LINE__) TestBB(300);
+//    TestBB* p4 = new TestBB(300);
+    delete p4;
+
+    return 0;
+}
+
 class DBHelper
 {
 public:
@@ -51,7 +176,7 @@ private:
     DBHelper* db_;
 };
 
-int main(void) {
+int main8765(void) {
 
     DB db;
     db->Open();
