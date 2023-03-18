@@ -6,7 +6,7 @@
 #include "StringUtil.h"
 using namespace std;
 
-int main(void)
+int main0001(void)
 {
     string s = "    abcd    ";
     StringUtil::LTrim(s);
