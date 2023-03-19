@@ -75,7 +75,7 @@ public:
     }
 };
 
-int main(void)
+int main08877(void)
 {
     SofaBed sofaBed(5);
     sofaBed.weigth_ = 10;
