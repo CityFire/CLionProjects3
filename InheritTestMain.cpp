@@ -99,7 +99,7 @@ public:
     int x_;
 };
 
-int main(void)
+int main99999(void)
 {
 //    Base b;
 //    b.x_ = 100;
