@@ -28,7 +28,7 @@ public:
     int dd_;
 };
 
-int main(void)
+int main999999(void)
 {
     cout<<sizeof(BB)<<endl;
     cout<< sizeof(B1)<<endl;
@@ -52,6 +52,8 @@ int main(void)
     cout<<&dd.b1_<<endl;
     cout<<&dd.b2_<<endl;
     cout<<&dd.dd_<<endl;
+
+    // 虚基类表  虚基类表指针
 
     return 0;
 }
