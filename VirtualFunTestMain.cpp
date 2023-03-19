@@ -27,7 +27,8 @@ public:
         cout<<"VirtualBase..."<<endl;
     }
 
-    ~VirtualBase()
+    // 如果一个类要作为多态基类，要将析构函数定义成虚函数
+    virtual ~VirtualBase()
     {
         cout<<"~VirtualBase"<<endl;
     }
@@ -78,6 +79,12 @@ int main(void)
 
     p->Fun1();
     delete p;
+
+//    VirtualBase...
+//    VirtualDerived...
+//    VirtualDerived::Fun1...
+//    ~VirtualDerived
+//    ~VirtualBase
 
     return 0;
 }
