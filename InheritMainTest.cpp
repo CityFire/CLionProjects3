@@ -63,7 +63,7 @@ Employee::operator Manager() {
     return Manager(name_, age_, deptno_, -1);
 }
 
-int main(void)
+int w5665main(void)
 {
     Employee e1("zhangsan", 20, 10330);
     Manager m1("lisi", 30, 10031, 12);
