@@ -77,7 +77,7 @@ private:
 // 避免名称冲突
 // 类型的扩充
 // 数据封装、能够保护内部的数据结构不遭受外界破坏
-int main(void)
+int main99089(void)
 {
     Stack stack;  // 抽象数据类型  类类型
     int i;
