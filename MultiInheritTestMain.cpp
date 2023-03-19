@@ -8,33 +8,33 @@ using namespace  std;
 class Furniture
 {
 public:
-    Furniture(int weight) : weigth_(weight)
-    {
-
-    }
+//    Furniture(int weight) : weigth_(weight)
+//    {
+//
+//    }
     int weigth_;
 };
 
-class Bed : public Furniture
+class Bed : virtual public Furniture
 {
 public:
-    Bed(int weight) : Furniture(weight)
-    {
-
-    }
+//    Bed(int weight) : Furniture(weight)
+//    {
+//
+//    }
     void Sleep()
     {
         cout<<"Sleep..."<<endl;
     }
 };
 
-class Sofa : public Furniture
+class Sofa : virtual public Furniture
 {
 public:
-    Sofa(int weight) : Furniture(weight)
-    {
-
-    }
+//    Sofa(int weight) : Furniture(weight)
+//    {
+//
+//    }
     void WatchTV()
     {
         cout<<"WatchTv..."<<endl;
@@ -44,10 +44,10 @@ public:
 class SofaBed : public Bed, public Sofa
 {
 public:
-    SofaBed(int weight) : Bed(weight), Sofa(weight)
-    {
-        FoldIn();
-    }
+//    SofaBed(int weight) : Bed(weight), Sofa(weight)
+//    {
+//        FoldIn();
+//    }
     void FoldOut()
     {
         cout<<"FoldOut..."<<endl;
@@ -60,7 +60,9 @@ public:
 
 int main(void)
 {
-    SofaBed sofaBed(10);
+//    SofaBed sofaBed(10);
+    SofaBed sofaBed;
+    sofaBed.weigth_ = 10;
     //sofaBed.weight_ = 10;
     //sofaBed.weight_ = 20;
 
