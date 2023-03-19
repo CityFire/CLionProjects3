@@ -63,7 +63,7 @@ public:
     }
 };
 
-int main(void)
+int mainfuncdd(void)
 {
 //    VirtualBase* p;
 //    VirtualDerived d;
