@@ -10,15 +10,15 @@ class Furniture
 public:
     Furniture(int weight) : weigth_(weight)
     {
-        
+
     }
     int weigth_;
 };
 
-class Bed
+class Bed : public Furniture
 {
 public:
-    Bed(int weight) : weigth_(weight)
+    Bed(int weight) : Furniture(weight)
     {
 
     }
@@ -26,13 +26,12 @@ public:
     {
         cout<<"Sleep..."<<endl;
     }
-    int weigth_;
 };
 
-class Sofa
+class Sofa : public Furniture
 {
 public:
-    Sofa(int weight) : weigth_(weight)
+    Sofa(int weight) : Furniture(weight)
     {
 
     }
@@ -40,13 +39,12 @@ public:
     {
         cout<<"WatchTv..."<<endl;
     }
-    int weigth_;
 };
 
 class SofaBed : public Bed, public Sofa
 {
 public:
-    SofaBed() : Bed(0), Sofa(0)
+    SofaBed(int weight) : Bed(weight), Sofa(weight)
     {
         FoldIn();
     }
@@ -62,7 +60,7 @@ public:
 
 int main(void)
 {
-    SofaBed sofaBed;
+    SofaBed sofaBed(10);
     //sofaBed.weight_ = 10;
     //sofaBed.weight_ = 20;
 
