@@ -96,7 +96,7 @@ public:
     }
 };
 
-int main87h(void)
+int main(void)
 {
 //    Shape s;  // Error 不能实例化抽象类
     vector<Shape*> v;
@@ -118,6 +118,56 @@ int main87h(void)
 
     DrawAllShapes(v);
     DeleteAllShapes(v);
+
+    //////////////////////////////
+    // RTTI(runtime type information)
+    // dynamic_cast运算符
+    // typeid运算符
+    // type_info
+
+    // static_cast 用在编译器认可的转型
+    // reinterpret_cast 用在编译器不认可的转型
+    // const_cast 去除常量限定
+    // dynamic_cast 安全的向下转型
+    // reinterpret_cast 不做任何的对齐操作
+    // ()还是会做一些对齐操作的  强制转型  ((Square*)p)->Draw();
+
+    Shape* p;
+    Circle c;
+
+    p = &c;
+    p->Draw();
+
+    if (dynamic_cast<Circle*>(p))
+    {
+        cout<<"p is point to a Circle object"<<endl;
+        Circle* cp = dynamic_cast<Circle*>(p);      // 安全向下转型
+        cp->Draw();
+    }
+    else if (dynamic_cast<Square*>(p))
+    {
+        cout<<"p is point to a Square object"<<endl;
+    }
+    else
+    {
+        cout<<"p is point to a Other object"<<endl;
+    }
+
+    cout<< typeid(*p).name()<<endl;
+    cout<< typeid(Circle).name()<<endl;
+    if (typeid(Circle).name() == typeid(*p).name())
+    {
+        cout<<"p is point to a Circle object"<<endl;
+        ((Circle*)p)->Draw();
+    }
+    else if (typeid(Square).name() == typeid(*p).name())
+    {
+        cout<<"p is point to a Square object"<<endl;
+        ((Square*)p)->Draw();
+    }
+    else {
+        cout<<"p is point to a Other object"<<endl;
+    }
 
     return 0;
 }

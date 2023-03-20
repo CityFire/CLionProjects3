@@ -25,7 +25,7 @@ void DeleteAllShapes(const vector<CShape*>& v)
     }
 }
 
-int main(void)
+int mainDyn(void)
 {
     vector<CShape*> v;
     CShape* ps;
