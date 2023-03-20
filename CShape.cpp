@@ -40,3 +40,28 @@ CRectangle::~CRectangle()
 REGISTER_CLASS(CCircle);
 REGISTER_CLASS(CSquare);
 REGISTER_CLASS(CRectangle);
+/*
+class CCircleRegister
+{
+public:
+    static void* NewInstance()
+    {
+        return new CCircle;
+    }
+private:
+    static Register reg_;
+};
+Register CCircleRegister::reg_("CCircle", CCircleRegister::NewInstance)
+
+#define REGISTER_CLASS(class_name) \
+class class_name##Register { \
+public: \
+    static void* NewInstance() \
+    { \
+        return new class_name; \
+    } \
+private: \
+    static Register reg_; \
+}; \
+Register class_name##Register::reg_(#class_name, class_name##Register::NewInstance)
+ */
