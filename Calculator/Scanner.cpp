@@ -15,6 +15,11 @@ double Scanner::Number() const
     return number_;
 }
 
+std::string Scanner::GetSymbol() const
+{
+    return symbol_;
+}
+
 EToken Scanner::Token() const
 {
     return token_;
@@ -46,6 +51,10 @@ void Scanner::Accept()
             token_ = TOKEN_DIVIDE;
             ++curPos_;
             break;
+        case '=':
+            token_ = TOKEN_ASSIGN;
+            ++curPos_;
+            break;
         case '(':
             token_ = TOKEN_LPARENTHESIS;
             ++curPos_;
@@ -66,7 +75,19 @@ void Scanner::Accept()
             token_ = TOKEN_END;
             break;
         default:
-            token_ = TOKEN_ERROR;
+            if (isalpha(buf_[curPos_]) || buf_[curPos_] == '_')
+            {
+                token_ = TOKEN_IDENTIFIER;
+                symbol_.erase();
+                char ch = buf_[curPos_];
+                do {
+                    symbol_ += ch;
+                    ++curPos_;
+                    ch = buf_[curPos_];
+                } while (isalnum(ch) || ch == '_');
+            }
+            else
+                token_ = TOKEN_ERROR;
             break;
     }
 }

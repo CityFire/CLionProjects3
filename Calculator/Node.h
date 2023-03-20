@@ -7,6 +7,8 @@
 
 #include <vector>
 
+class Storage;
+
 // 值语义和对象语义  对象语义 禁止拷贝
 // 值语义对象通常以类对象的方式来使用       基于对象编程
 // 对象语义对象通常以指针或者引用方式来使用  面向对象编程
@@ -25,6 +27,14 @@ private:
 class Node : private Noncopyable { // 实现继承
 public:
     virtual double Calc() const = 0;  // 纯虚函数
+    virtual bool IsLvalue() const
+    {
+        return false;
+    }
+    virtual void Assign(double val)
+    {
+        assert(!"Assign called incorrectlly.");
+    }
     virtual ~Node() {}  // 虚析构函数
 };
 
@@ -122,6 +132,25 @@ class ProductNode : public  MultipleNode
 {
 public:
     ProductNode(Node* node) : MultipleNode(node) {}
+    double Calc() const;
+};
+
+class VariableNode : public Node
+{
+public:
+    VariableNode(unsigned int id, Storage& storage) : id_(id), storage_(storage) {}
+    double Calc() const;
+    bool IsLvalue() const;
+    void Assign(double val);
+private:
+    const unsigned int id_;
+    Storage& storage_;
+};
+
+class AssignNode : public BinaryNode
+{
+public:
+    AssignNode(Node* left, Node* right) : BinaryNode(left, right) {}
     double Calc() const;
 };
 
