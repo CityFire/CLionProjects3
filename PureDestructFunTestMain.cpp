@@ -24,7 +24,7 @@ class DDerived : public DBase
 
 };
 
-int main(void)
+int main887544(void)
 {
     DDerived d;
 
