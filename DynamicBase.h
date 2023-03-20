@@ -9,7 +9,7 @@
 #include <string>
 using namespace std;
 
-typedef void* (*CREATE_FUNC)();
+typedef void* (*CREATE_FUNC)();  // 函数指针
 
 class DynObjcetFactory
 {
@@ -29,13 +29,13 @@ public:
         mapCls_[name] = func;
     }
 private:
-    static map<string, CREATE_FUNC> mapCls_;
+    static map<string, CREATE_FUNC> mapCls_;  // 声明
 };
 
 // g++
 // __attribute((weak))
 //__declspec(selectany) map<string, CREATE_FUNC> DynObjcetFactory::mapCls_;
-__attribute((weak)) map<string, CREATE_FUNC> DynObjcetFactory::mapCls_;
+__attribute((weak)) map<string, CREATE_FUNC> DynObjcetFactory::mapCls_;  // 防止多次头文件导入多次引用  静态成员的定义性说明
 
 class Register
 {
