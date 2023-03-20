@@ -5,8 +5,22 @@
 #ifndef CALCULATOR_NODE_H
 #define CALCULATOR_NODE_H
 
+// 值语义和对象语义  对象语义 禁止拷贝
+// 值语义对象通常以类对象的方式来使用       基于对象编程
+// 对象语义对象通常以指针或者引用方式来使用  面向对象编程
 
-class Node {
+class Noncopyable
+{
+protected:
+    Noncopyable() {}
+    ~Noncopyable() {}
+private:
+    Noncopyable(const Noncopyable&);
+    const Noncopyable& operator=(const Noncopyable&);
+};
+
+// 接口继承 实现继承
+class Node : private Noncopyable { // 实现继承
 public:
     virtual double Calc() const = 0;  // 纯虚函数
     virtual ~Node() {}  // 虚析构函数

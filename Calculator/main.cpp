@@ -1,6 +1,21 @@
 #include <iostream>
+#include <string>
+#include "Scanner.h"
+#include "Parser.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+
+    STATUS status = STATUS_OK;
+    do {
+        std::cout<<"> ";
+        std::string buf;
+        std::getline(std::cin, buf);
+        std::cout<<buf<<std::endl;
+        Scanner scanner(buf);
+        Parser parser(scanner);
+        parser.Parse();
+        parser.Calculate();
+    } while (status != STATUS_QUIT);
+
     return 0;
 }
