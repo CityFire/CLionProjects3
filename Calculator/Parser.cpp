@@ -22,17 +22,29 @@ Node* Parser::Expr()
 {
     Node* node = Term();
     EToken token = scanner_.Token();
-    if (token == TOKEN_PLUS)
+//    if (token == TOKEN_PLUS)
+//    {
+//        scanner_.Accept();
+//        Node* nodeRight = Expr();
+//        node = new AddNode(node, nodeRight);
+//    }
+//    else if (token == TOKEN_MINUS)
+//    {
+//        scanner_.Accept();
+//        Node* nodeRight = Expr();
+//        node = new SubNode(node, nodeRight);
+//    }
+    if (token == TOKEN_PLUS || token == TOKEN_MINUS)
     {
-        scanner_.Accept();
-        Node* nodeRight = Expr();
-        node = new AddNode(node, nodeRight);
-    }
-    else if (token == TOKEN_MINUS)
-    {
-        scanner_.Accept();
-        Node* nodeRight = Expr();
-        node = new SubNode(node, nodeRight);
+        // Expr := Term { ('+' | '-') Term }
+        MultipleNode* multipleNode = new SumNode(node);
+        do {
+            scanner_.Accept();
+            Node* nextNode = Term();
+            multipleNode->AppendChild(nextNode, (token == TOKEN_PLUS));
+            token = scanner_.Token();
+        } while (token == TOKEN_PLUS || token == TOKEN_MINUS);
+        node = multipleNode;
     }
     return node;
 }
@@ -41,17 +53,29 @@ Node* Parser::Term()
 {
     Node* node = Factor();
     EToken token = scanner_.Token();
-    if (token == TOKEN_MULTIPLY)
+//    if (token == TOKEN_MULTIPLY)
+//    {
+//        scanner_.Accept();
+//        Node* nodeRight = Term();
+//        node = new MultiplyNode(node, nodeRight);
+//    }
+//    else if (token == TOKEN_DIVIDE)
+//    {
+//        scanner_.Accept();
+//        Node* nodeRight = Term();
+//        node = new DivideNode(node, nodeRight);
+//    }
+    if (token == TOKEN_MULTIPLY || token == TOKEN_DIVIDE)
     {
-        scanner_.Accept();
-        Node* nodeRight = Term();
-        node = new MultiplyNode(node, nodeRight);
-    }
-    else if (token == TOKEN_DIVIDE)
-    {
-        scanner_.Accept();
-        Node* nodeRight = Term();
-        node = new DivideNode(node, nodeRight);
+        // Term := Factor { ('*' | '/') Factor }
+        MultipleNode* multipleNode = new ProductNode(node);
+        do {
+            scanner_.Accept();
+            Node* nextNode = Factor();
+            multipleNode->AppendChild(nextNode, (token == TOKEN_MULTIPLY));
+            token = scanner_.Token();
+        } while (token == TOKEN_MULTIPLY || token == TOKEN_DIVIDE);
+        node = multipleNode;
     }
     return node;
 }

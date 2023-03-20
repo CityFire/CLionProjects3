@@ -5,6 +5,8 @@
 #ifndef CALCULATOR_NODE_H
 #define CALCULATOR_NODE_H
 
+#include <vector>
+
 // 值语义和对象语义  对象语义 禁止拷贝
 // 值语义对象通常以类对象的方式来使用       基于对象编程
 // 对象语义对象通常以指针或者引用方式来使用  面向对象编程
@@ -56,33 +58,33 @@ protected:
     Node* const child_;
 };
 
-class AddNode : public BinaryNode
-{
-public:
-    AddNode(Node* left, Node* right) : BinaryNode(left, right) {}
-    double Calc() const;
-};
-
-class SubNode : public BinaryNode
-{
-public:
-    SubNode(Node* left, Node* right) : BinaryNode(left, right) {}
-    double Calc() const;
-};
-
-class MultiplyNode : public BinaryNode
-{
-public:
-    MultiplyNode(Node* left, Node* right) : BinaryNode(left, right) {}
-    double Calc() const;
-};
-
-class DivideNode : public BinaryNode
-{
-public:
-    DivideNode(Node* left, Node* right) : BinaryNode(left, right) {}
-    double Calc() const;
-};
+//class AddNode : public BinaryNode
+//{
+//public:
+//    AddNode(Node* left, Node* right) : BinaryNode(left, right) {}
+//    double Calc() const;
+//};
+//
+//class SubNode : public BinaryNode
+//{
+//public:
+//    SubNode(Node* left, Node* right) : BinaryNode(left, right) {}
+//    double Calc() const;
+//};
+//
+//class MultiplyNode : public BinaryNode
+//{
+//public:
+//    MultiplyNode(Node* left, Node* right) : BinaryNode(left, right) {}
+//    double Calc() const;
+//};
+//
+//class DivideNode : public BinaryNode
+//{
+//public:
+//    DivideNode(Node* left, Node* right) : BinaryNode(left, right) {}
+//    double Calc() const;
+//};
 
 class UMinusNode : public UnaryNode
 {
@@ -91,6 +93,36 @@ public:
     double Calc() const;
 };
 
+class MultipleNode :public Node
+{
+public:
+    MultipleNode(Node* node)
+    {
+        AppendChild(node, true);
+    }
+    void AppendChild(Node* node, bool positive)
+    {
+        childs_.push_back(node);
+        positives_.push_back(positive);
+    }
+    ~MultipleNode();
+protected:
+    std::vector<Node*> childs_;
+    std::vector<bool> positives_;
+};
 
+class SumNode : public MultipleNode
+{
+public:
+    SumNode(Node* node) : MultipleNode(node) {}
+    double Calc() const;
+};
+
+class ProductNode : public  MultipleNode
+{
+public:
+    ProductNode(Node* node) : MultipleNode(node) {}
+    double Calc() const;
+};
 
 #endif //CALCULATOR_NODE_H
