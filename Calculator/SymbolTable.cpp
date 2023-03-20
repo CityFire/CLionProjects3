@@ -3,6 +3,7 @@
 //
 
 #include "SymbolTable.h"
+#include <algorithm>
 
 unsigned int SymbolTable::Add(const std::string& str)
 {

@@ -6,6 +6,7 @@
 #include "SymbolTable.h"
 #include <cmath>
 #include <cassert>
+#include <iostream>
 
 Storage::Storage(SymbolTable& tbl)
 {
@@ -27,9 +28,11 @@ void Storage::AddConstants(SymbolTable& tbl)
 {
     unsigned int id = tbl.Add("e");
     AddValue(id, exp(1.0));
+    std::cout<<"e = "<<exp(1.0)<<std::endl;
 
     id = tbl.Add("pi");
     AddValue(id, 2.0* acos(0.0));  // 反余弦 pi = 2*acos(0)
+    std::cout<<"pi = "<<2.0* acos(0.0)<<std::endl;
 }
 
 double Storage::GetValue(unsigned int id) const

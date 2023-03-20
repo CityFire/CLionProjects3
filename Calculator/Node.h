@@ -6,6 +6,7 @@
 #define CALCULATOR_NODE_H
 
 #include <vector>
+#include "FunctionTable.h"
 
 class Storage;
 
@@ -66,6 +67,14 @@ public:
     ~UnaryNode();
 protected:
     Node* const child_;
+};
+
+class FunctionNode : public UnaryNode {
+public:
+    FunctionNode(Node* child, PtrFun pFun) : UnaryNode(child), pFun_(pFun) {}
+    double Calc() const;
+private:
+    PtrFun pFun_;
 };
 
 //class AddNode : public BinaryNode
