@@ -9,8 +9,8 @@
 #include <string>
 
 class SymbolTable {
-    enum { IDNOTFOUND = 0xffffffff };
 public:
+    enum { IDNOTFOUND = 0xffffffff };
     SymbolTable() : curId_(0) {}
     unsigned int Add(const std::string& str);
     unsigned int Find(const std::string& str) const;

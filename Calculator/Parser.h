@@ -7,6 +7,7 @@
 
 class Scanner;
 class Node;
+class Calc;
 
 enum STATUS
 {
@@ -17,7 +18,7 @@ enum STATUS
 
 class Parser {
 public:
-    Parser(Scanner& scanner);
+    Parser(Scanner& scanner, Calc& calc);
     void Parse();
     Node* Expr();  // 表达式
     Node* Term();  // Item项
@@ -25,6 +26,7 @@ public:
     double Calculate() const;
 private:
     Scanner& scanner_;
+    Calc& calc_;
     Node* tree_;
     STATUS status_;
 };

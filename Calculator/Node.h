@@ -150,7 +150,10 @@ private:
 class AssignNode : public BinaryNode
 {
 public:
-    AssignNode(Node* left, Node* right) : BinaryNode(left, right) {}
+    AssignNode(Node* left, Node* right) : BinaryNode(left, right)
+    {
+        assert(left->IsLvalue());
+    }
     double Calc() const;
 };
 
