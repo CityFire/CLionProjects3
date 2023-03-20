@@ -1,0 +1,308 @@
+## This file contains all the build statements describing the
+# compilation DAG.
+
+# =============================================================================
+# Write statements declared in CMakeLists.txt:
+# 
+# Which is the root file.
+# =============================================================================
+
+# =============================================================================
+# Project: Demo
+# Configurations: Debug
+# =============================================================================
+
+#############################################
+# Minimal version of Ninja required by this file
+
+ninja_required_version = 1.5
+
+
+#############################################
+# Set configuration variable for custom commands.
+
+CONFIGURATION = Debug
+# =============================================================================
+# Include auxiliary files.
+
+
+#############################################
+# Include rules file.
+
+include CMakeFiles/rules.ninja
+
+# =============================================================================
+
+#############################################
+# Logical path to working directory; prefix for absolute paths.
+
+cmake_ninja_workdir = /Users/mac/CLionProjects/Demo/cmake-build-debug/
+# =============================================================================
+# Object build statements for EXECUTABLE target Demo
+
+
+#############################################
+# Order-only phony target for Demo
+
+build cmake_object_order_depends_target_Demo: phony || CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/main.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/main.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/main.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/TestA.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/TestA.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/TestA.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/TestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/TestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/TestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/Clock.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/Clock.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/Clock.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/StringA.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/StringA.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/StringA.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/CountedObject.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/CountedObject.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/CountedObject.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/FriendTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/FriendTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/FriendTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/Television.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/Television.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/Television.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/TeleController.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/TeleController.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/TeleController.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/Complex.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/Complex.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/Complex.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/complexTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/complexTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/complexTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/Integer.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/Integer.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/Integer.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/OperatorTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/OperatorTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/OperatorTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/StringTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/StringTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/StringTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/StringUtil.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/StringUtil.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/StringUtil.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/vectorTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/vectorTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/vectorTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/mapTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/mapTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/mapTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/CStackTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/CStackTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/CStackTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/CPPStackTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/CPPStackTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/CPPStackTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/InheritTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/InheritTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/InheritTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/InheritMainTest.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/InheritMainTest.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/InheritMainTest.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/MultiInheritTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/MultiInheritTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/MultiInheritTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/VirtualBTableTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/VirtualBTableTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/VirtualBTableTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/VirtualFunTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/VirtualFunTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/VirtualFunTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/VirtualFunTableTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/VirtualFunTableTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/VirtualFunTableTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/AbstractVirtualTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/AbstractVirtualTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/AbstractVirtualTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/PureDestructFunTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/PureDestructFunTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/PureDestructFunTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/DynamicTestMain.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/DynamicTestMain.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/DynamicTestMain.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+build CMakeFiles/Demo.dir/CShape.cpp.o: CXX_COMPILER__Demo_Debug /Users/mac/CLionProjects/Demo/CShape.cpp || cmake_object_order_depends_target_Demo
+  DEP_FILE = CMakeFiles/Demo.dir/CShape.cpp.o.d
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7 -std=gnu++14
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  OBJECT_FILE_DIR = CMakeFiles/Demo.dir
+
+
+# =============================================================================
+# Link build statements for EXECUTABLE target Demo
+
+
+#############################################
+# Link the executable Demo
+
+build Demo: CXX_EXECUTABLE_LINKER__Demo_Debug CMakeFiles/Demo.dir/main.cpp.o CMakeFiles/Demo.dir/TestA.cpp.o CMakeFiles/Demo.dir/TestMain.cpp.o CMakeFiles/Demo.dir/Clock.cpp.o CMakeFiles/Demo.dir/StringA.cpp.o CMakeFiles/Demo.dir/CountedObject.cpp.o CMakeFiles/Demo.dir/FriendTestMain.cpp.o CMakeFiles/Demo.dir/Television.cpp.o CMakeFiles/Demo.dir/TeleController.cpp.o CMakeFiles/Demo.dir/Complex.cpp.o CMakeFiles/Demo.dir/complexTestMain.cpp.o CMakeFiles/Demo.dir/Integer.cpp.o CMakeFiles/Demo.dir/OperatorTestMain.cpp.o CMakeFiles/Demo.dir/StringTestMain.cpp.o CMakeFiles/Demo.dir/StringUtil.cpp.o CMakeFiles/Demo.dir/vectorTestMain.cpp.o CMakeFiles/Demo.dir/mapTestMain.cpp.o CMakeFiles/Demo.dir/CStackTestMain.cpp.o CMakeFiles/Demo.dir/CPPStackTestMain.cpp.o CMakeFiles/Demo.dir/InheritTestMain.cpp.o CMakeFiles/Demo.dir/InheritMainTest.cpp.o CMakeFiles/Demo.dir/MultiInheritTestMain.cpp.o CMakeFiles/Demo.dir/VirtualBTableTestMain.cpp.o CMakeFiles/Demo.dir/VirtualFunTestMain.cpp.o CMakeFiles/Demo.dir/VirtualFunTableTestMain.cpp.o CMakeFiles/Demo.dir/AbstractVirtualTestMain.cpp.o CMakeFiles/Demo.dir/PureDestructFunTestMain.cpp.o CMakeFiles/Demo.dir/DynamicTestMain.cpp.o CMakeFiles/Demo.dir/CShape.cpp.o
+  FLAGS = -g -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX12.1.sdk -mmacosx-version-min=11.7
+  LINK_FLAGS = -L/usr/local/opt/ruby/lib
+  OBJECT_DIR = CMakeFiles/Demo.dir
+  POST_BUILD = :
+  PRE_LINK = :
+  TARGET_FILE = Demo
+  TARGET_PDB = Demo.dbg
+
+
+#############################################
+# Utility command for edit_cache
+
+build CMakeFiles/edit_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/mac/CLionProjects/Demo/cmake-build-debug && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+  DESC = No interactive CMake dialog available...
+  restat = 1
+
+build edit_cache: phony CMakeFiles/edit_cache.util
+
+
+#############################################
+# Utility command for rebuild_cache
+
+build CMakeFiles/rebuild_cache.util: CUSTOM_COMMAND
+  COMMAND = cd /Users/mac/CLionProjects/Demo/cmake-build-debug && /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/mac/CLionProjects/Demo -B/Users/mac/CLionProjects/Demo/cmake-build-debug
+  DESC = Running CMake to regenerate build system...
+  pool = console
+  restat = 1
+
+build rebuild_cache: phony CMakeFiles/rebuild_cache.util
+
+# =============================================================================
+# Target aliases.
+
+# =============================================================================
+# Folder targets.
+
+# =============================================================================
+
+#############################################
+# Folder: /Users/mac/CLionProjects/Demo/cmake-build-debug
+
+build all: phony Demo
+
+# =============================================================================
+# Built-in targets
+
+
+#############################################
+# Re-run CMake if any of its inputs changed.
+
+build build.ninja: RERUN_CMAKE | ../CMakeLists.txt /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.23.2/CMakeCCompiler.cmake CMakeFiles/3.23.2/CMakeCXXCompiler.cmake CMakeFiles/3.23.2/CMakeSystem.cmake
+  pool = console
+
+
+#############################################
+# A missing CMake input file is not an error.
+
+build ../CMakeLists.txt /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCXXInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeCommonLanguageInclude.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeGenericSystem.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeInitializeConfigs.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeLanguageInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInformation.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/CMakeSystemSpecificInitialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/CMakeCommonCompilerMacros.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Compiler/GNU.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-AppleClang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-C.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang-CXX.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Apple-Clang.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin-Initialize.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/Darwin.cmake /Applications/CLion.app/Contents/bin/cmake/mac/share/cmake-3.23/Modules/Platform/UnixPaths.cmake CMakeCache.txt CMakeFiles/3.23.2/CMakeCCompiler.cmake CMakeFiles/3.23.2/CMakeCXXCompiler.cmake CMakeFiles/3.23.2/CMakeSystem.cmake: phony
+
+
+#############################################
+# Clean all the built files.
+
+build clean: CLEAN
+
+
+#############################################
+# Print all primary targets available.
+
+build help: HELP
+
+
+#############################################
+# Make the all target the default.
+
+default all
