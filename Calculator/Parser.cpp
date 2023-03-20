@@ -15,9 +15,14 @@ Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), t
 
 }
 
-void Parser::Parse()
+STATUS Parser::Parse()
 {
     tree_ = Expr();
+    if (!scanner_.isDone())
+    {
+        status_ = STATUS_ERROR;
+    }
+    return status_;
 }
 
 Node* Parser::Expr()

@@ -26,6 +26,8 @@ class Scanner
 public:
     Scanner(const std::string& buf);
     void Accept();
+    bool IsEmpty() const;
+    bool isDone() const;
     double Number() const;
     std::string GetSymbol() const;
     EToken Token() const;
@@ -36,6 +38,7 @@ private:
     EToken token_;
     double number_;
     std::string symbol_;
+    bool isEmpty_;
 };
 
 

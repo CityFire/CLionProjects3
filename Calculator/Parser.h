@@ -19,7 +19,7 @@ enum STATUS
 class Parser {
 public:
     Parser(Scanner& scanner, Calc& calc);
-    void Parse();
+    STATUS Parse();
     Node* Expr();  // 表达式
     Node* Term();  // Item项
     Node* Factor();// 因子

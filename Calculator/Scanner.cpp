@@ -8,6 +8,17 @@
 Scanner::Scanner(const std::string& buf) : buf_(buf), curPos_(0)
 {
     Accept();
+    isEmpty_ = (token_ == TOKEN_END);
+}
+
+bool Scanner::IsEmpty() const
+{
+    return isEmpty_;
+}
+
+bool Scanner::isDone() const
+{
+    return token_ == TOKEN_END;
 }
 
 double Scanner::Number() const
