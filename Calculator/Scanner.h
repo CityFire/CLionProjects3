@@ -21,7 +21,8 @@ enum EToken
     TOKEN_ASSIGN
 };
 
-class Scanner {
+class Scanner
+{
 public:
     Scanner(const std::string& buf);
     void Accept();
