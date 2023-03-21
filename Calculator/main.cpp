@@ -3,6 +3,7 @@
 #include "Scanner.h"
 #include "Parser.h"
 #include "Calc.h"
+#include "Exception.h"
 
 int main() {
 
@@ -17,13 +18,27 @@ int main() {
         if (!scanner.IsEmpty())
         {
             Parser parser(scanner, calc);
-            status = parser.Parse();
-            if (status == STATUS_OK)
+            try
             {
-                std::cout<<parser.Calculate()<<std::endl;
+                status = parser.Parse();
+                if (status == STATUS_OK)
+                {
+                    std::cout << parser.Calculate() << std::endl;
+                }
             }
-            else
-                std::cout<<"Syntax Error."<<std::endl;
+            catch (SyntaxError& se)
+            {
+                std::cout<<se.what()<<std::endl;
+                std::cout<<se.StackTrace()<<std::endl;
+            }
+            catch (Exception& e)
+            {
+                std::cout<<e.what()<<std::endl;
+            }
+            catch (...)
+            {
+                std::cout<<"Internal error."<<std::endl;
+            }
         }
         else
             std::cout<<"Expression is empty."<<std::endl;

@@ -2,13 +2,13 @@
 // Created by wjc on 2023/3/20.
 //
 
+#include <iostream>
+#include <assert.h>
 #include "Parser.h"
 #include "Scanner.h"
 #include "Node.h"
 #include "Calc.h"
-
-#include <iostream>
-#include <assert.h>
+#include "Exception.h"
 
 Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), tree_(0)
 {
@@ -65,8 +65,9 @@ Node* Parser::Expr()
         else
         {
             status_ = STATUS_ERROR;
-            std::cout<<"The left-hand side of an assignment must be a variable"<<std::endl;
+            //std::cout<<"The left-hand side of an assignment must be a variable"<<std::endl;
             // Todo 抛出异常
+            throw SyntaxError("The left-hand side of an assignment must be a variable");
         }
     }
     return node;
@@ -119,7 +120,8 @@ Node* Parser::Factor()
          {
              status_ = STATUS_ERROR;
              // Todo:抛出异常
-             std::cout<<"not a valid expression"<<std::endl;
+             //std::cout<<"not a valid expression"<<std::endl;
+             throw SyntaxError("Missing parenthesis.");
              node = 0;
          }
      }
@@ -147,13 +149,17 @@ Node* Parser::Factor()
                  }
                  else {
                      status_ = STATUS_ERROR;
-                     std::cout<<"Unknown function "<<"\""<<symbol<<"\""<<std::endl;
+                     //std::cout<<"Unknown function "<<"\""<<symbol<<"\""<<std::endl;
+                     char buf[256] = {0};
+                     sprintf(buf, "Unknown function \"%s\".", symbol.c_str());
+                     throw SyntaxError(buf);
                  }
              }
              else
              {
                  status_ = STATUS_ERROR;
-                 std::cout<<"Missing parenthesis in a function call."<<std::endl;
+                 //std::cout<<"Missing parenthesis in a function call."<<std::endl;
+                 throw SyntaxError("Missing parenthesis in a function call.");
              }
          }
          else
@@ -174,7 +180,8 @@ Node* Parser::Factor()
      {
          status_ = STATUS_ERROR;
          // Todo:抛出异常
-         std::cout<<"Not a valid expression"<<std::endl;
+         //std::cout<<"Not a valid expression"<<std::endl;
+         throw SyntaxError("Not a valid expression");
          node = 0;
      }
     return node;

@@ -2,8 +2,9 @@
 // Created by wjc on 2023/3/21.
 //
 
-#include "SymbolTable.h"
 #include <algorithm>
+#include "SymbolTable.h"
+#include "Exception.h"
 
 unsigned int SymbolTable::Add(const std::string& str)
 {
@@ -46,7 +47,9 @@ std::string SymbolTable::GetSymbolName(unsigned int id) const
 {
     std::map<const std::string, unsigned int>::const_iterator it;
     it = std::find_if(dictionary_.begin(), dictionary_.end(), IsEqualId(id));
-    if (it != dictionary_.end())
-        return it->first;
-    return "not  found symbolName";
+    if (it == dictionary_.end())
+    {
+        throw Exception("Internal error: missing entry in symbol table.");
+    }
+    return it->first;
 }
