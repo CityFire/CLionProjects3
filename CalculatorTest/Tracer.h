@@ -43,6 +43,9 @@ public:
     void Dump();
 private:
     std::map<void*, Entry> mapEntry_;
+    int lockCount_;
+    void Lock() { ++lockCount_; }
+    void UnLock() { --lockCount_; }
 };
 
 extern Tracer NewTrace;

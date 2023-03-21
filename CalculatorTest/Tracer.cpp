@@ -7,7 +7,7 @@
 
 bool Tracer::Ready = false;
 
-Tracer::Tracer()
+Tracer::Tracer() : lockCount(0)
 {
     Ready = true;
 }
@@ -100,17 +100,29 @@ void operator delete[](void* p)
 
 void Tracer::Add(void *p, const char *file, long line)
 {
+    if (lockCount_ > 0)
+        return;
+
+    Lock();
     mapEntry_[p] = Entry(file, line);
+    UnLock();
 }
 
+// 死锁
+// 局部对象析构函数调用的确定性
 void Tracer::Remove(void *p)
 {
+    if (lockCount_ > 0)
+        return;
+
+    Lock();
     std::map<void*, Entry>::iterator it;
     it = mapEntry_.find(p);
     if (it != mapEntry_.end())
     {
         mapEntry_.erase(it);
     }
+    UnLock();
 }
 
 void Tracer::Dump()
