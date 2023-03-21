@@ -18,7 +18,7 @@ Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), t
 
 Parser::~Parser()
 {
-    delete tree_;
+//    delete tree_;
 }
 
 STATUS Parser::Parse()
@@ -31,9 +31,9 @@ STATUS Parser::Parse()
     return status_;
 }
 
-Node* Parser::Expr()
+std::auto_ptr<Node> Parser::Expr()
 {
-    Node* node = Term();
+    std::auto_ptr<Node> node = Term();
     EToken token = scanner_.Token();
 //    if (token == TOKEN_PLUS)
 //    {
@@ -50,10 +50,11 @@ Node* Parser::Expr()
     if (token == TOKEN_PLUS || token == TOKEN_MINUS)
     {
         // Expr := Term { ('+' | '-') Term }
-        MultipleNode* multipleNode = new SumNode(node);
+//        MultipleNode* multipleNode = new SumNode(node);
+        std::auto_ptr<MultipleNode> multipleNode(new SumNode(node));
         do {
             scanner_.Accept();
-            Node* nextNode = Term();
+            std::auto_ptr<Node> nextNode = Term();
             multipleNode->AppendChild(nextNode, (token == TOKEN_PLUS));
             token = scanner_.Token();
         } while (token == TOKEN_PLUS || token == TOKEN_MINUS);
@@ -63,10 +64,10 @@ Node* Parser::Expr()
     {
         // Expr := Term = Expr;
         scanner_.Accept();
-        Node* nodeRight = Expr();
+        std::auto_ptr<Node> nodeRight = Expr();
         if (node->IsLvalue())
         {
-            node = new AssignNode(node, nodeRight);
+            node = std::auto_ptr<Node>(new AssignNode(node, nodeRight));
         }
         else
         {
@@ -79,9 +80,9 @@ Node* Parser::Expr()
     return node;
 }
 
-Node* Parser::Term()
+std::auto_ptr<Node> Parser::Term()
 {
-    Node* node = Factor();
+    std::auto_ptr<Node> node = Factor();
     EToken token = scanner_.Token();
 //    if (token == TOKEN_MULTIPLY)
 //    {
@@ -98,10 +99,11 @@ Node* Parser::Term()
     if (token == TOKEN_MULTIPLY || token == TOKEN_DIVIDE)
     {
         // Term := Factor { ('*' | '/') Factor }
-        MultipleNode* multipleNode = new ProductNode(node);
+//        MultipleNode* multipleNode = new ProductNode(node);
+        std::auto_ptr<MultipleNode> multipleNode(new ProductNode(node));
         do {
             scanner_.Accept();
-            Node* nextNode = Factor();
+            std::auto_ptr<Node> nextNode = Factor();
             multipleNode->AppendChild(nextNode, (token == TOKEN_MULTIPLY));
             token = scanner_.Token();
         } while (token == TOKEN_MULTIPLY || token == TOKEN_DIVIDE);
@@ -110,9 +112,9 @@ Node* Parser::Term()
     return node;
 }
 
-Node* Parser::Factor()
+std::auto_ptr<Node> Parser::Factor()
 {
-     Node* node;
+    std::auto_ptr<Node> node;
      EToken token = scanner_.Token();
      if (token == TOKEN_LPARENTHESIS)
      {
@@ -128,12 +130,11 @@ Node* Parser::Factor()
              // Todo:抛出异常
              //std::cout<<"not a valid expression"<<std::endl;
              throw SyntaxError("Missing parenthesis.");
-             node = 0;
          }
      }
      else if (token == TOKEN_NUMBER)
      {
-         node = new NumberNode(scanner_.Number());
+         node = std::auto_ptr<Node>(new NumberNode(scanner_.Number()));
          scanner_.Accept();
      }
      else if (token == TOKEN_IDENTIFIER)
@@ -151,7 +152,7 @@ Node* Parser::Factor()
                  scanner_.Accept(); // accept ')'
                  if (id != SymbolTable::IDNOTFOUND && calc_.IsFunction(id))
                  {
-                     node = new FunctionNode(node, calc_.GetFunction(id));
+                     node = std::auto_ptr<Node>(new FunctionNode(node, calc_.GetFunction(id)));
                  }
                  else {
                      status_ = STATUS_ERROR;
@@ -175,12 +176,12 @@ Node* Parser::Factor()
                  id = calc_.AddSymbol(symbol);
              }
          }
-         node = new VariableNode(id, calc_.GetStorage());
+         node = std::auto_ptr<Node>(new VariableNode(id, calc_.GetStorage()));
      }
      else if (token == TOKEN_MINUS)
      {
          scanner_.Accept();   // accept minus
-         node = new UMinusNode(Factor());
+         node = std::auto_ptr<Node>(new UMinusNode(Factor()));
      }
      else
      {
@@ -188,13 +189,12 @@ Node* Parser::Factor()
          // Todo:抛出异常
          //std::cout<<"Not a valid expression"<<std::endl;
          throw SyntaxError("Not a valid expression");
-         node = 0;
      }
     return node;
 }
 
 double Parser::Calculate() const
 {
-    assert(tree_ != 0);
+    assert(tree_.get() != 0);
     return tree_->Calc();
 }

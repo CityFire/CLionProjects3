@@ -16,13 +16,13 @@ double NumberNode::Calc() const
 
 BinaryNode::~BinaryNode()
 {
-    delete left_;
-    delete right_;
+//    delete left_;
+//    delete right_;
 }
 
 UnaryNode::~UnaryNode()
 {
-    delete child_;
+//    delete child_;
 }
 
 //double AddNode::Calc() const
