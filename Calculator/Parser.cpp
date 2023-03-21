@@ -16,6 +16,11 @@ Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), t
 
 }
 
+Parser::~Parser()
+{
+    delete tree_;
+}
+
 STATUS Parser::Parse()
 {
     tree_ = Expr();

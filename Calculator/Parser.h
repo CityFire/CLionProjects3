@@ -19,6 +19,7 @@ enum STATUS
 class Parser {
 public:
     Parser(Scanner& scanner, Calc& calc);
+    ~Parser(); // { delete tree_; }
     STATUS Parse();
     Node* Expr();  // 表达式
     Node* Term();  // Item项

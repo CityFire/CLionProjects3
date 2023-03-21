@@ -8,7 +8,6 @@
 
 int main() {
 
-    int* p = new int;
     Calc calc;
     STATUS status = STATUS_OK;
     do {
@@ -30,20 +29,26 @@ int main() {
             }
             catch (SyntaxError& se)
             {
+                status = STATUS_QUIT;
                 std::cout<<se.what()<<std::endl;
                 std::cout<<se.StackTrace()<<std::endl;
             }
             catch (Exception& e)
             {
+                status = STATUS_QUIT;
                 std::cout<<e.what()<<std::endl;
             }
             catch (...)
             {
+                status = STATUS_QUIT;
                 std::cout<<"Internal error."<<std::endl;
             }
         }
         else
+        {
+            status = STATUS_QUIT;
             std::cout<<"Expression is empty."<<std::endl;
+        }
     } while (status != STATUS_QUIT);
     return 0;
 }
