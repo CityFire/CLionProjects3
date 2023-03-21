@@ -7,7 +7,7 @@
 
 bool Tracer::Ready = false;
 
-Tracer::Tracer() : lockCount(0)
+Tracer::Tracer() : lockCount_(0)
 {
     Ready = true;
 }
@@ -103,9 +103,9 @@ void Tracer::Add(void *p, const char *file, long line)
     if (lockCount_ > 0)
         return;
 
-    Lock();
+    Tracer::Lock Lock(*this);
+
     mapEntry_[p] = Entry(file, line);
-    UnLock();
 }
 
 // 死锁
@@ -115,14 +115,13 @@ void Tracer::Remove(void *p)
     if (lockCount_ > 0)
         return;
 
-    Lock();
+    Tracer::Lock Lock(*this);
     std::map<void*, Entry>::iterator it;
     it = mapEntry_.find(p);
     if (it != mapEntry_.end())
     {
         mapEntry_.erase(it);
     }
-    UnLock();
 }
 
 void Tracer::Dump()

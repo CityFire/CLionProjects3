@@ -33,6 +33,26 @@ private:
         const char* file_;
         long line_;
     };
+
+    class Lock
+    {
+    public:
+        Lock(Tracer& tracer) : tracer_(tracer)
+        {
+            tracer_.lock();
+        }
+        ~Lock()
+        {
+            tracer_.unlock();
+        }
+    private:
+        Tracer& tracer_;
+    };
+
+    friend class Lock;   // 友元类
+    // 友元函数破坏了封装性，但是它提高了效率
+    // 友元类恰恰是提高了类的封装性
+
 public:
     Tracer();
     ~Tracer();
@@ -44,8 +64,8 @@ public:
 private:
     std::map<void*, Entry> mapEntry_;
     int lockCount_;
-    void Lock() { ++lockCount_; }
-    void UnLock() { --lockCount_; }
+    void lock() { ++lockCount_; }
+    void unlock() { --lockCount_; }
 };
 
 extern Tracer NewTrace;
