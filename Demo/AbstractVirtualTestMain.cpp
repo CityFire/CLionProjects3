@@ -96,7 +96,7 @@ public:
     }
 };
 
-int main(void)
+int main333999999(void)
 {
 //    Shape s;  // Error 不能实例化抽象类
     vector<Shape*> v;
