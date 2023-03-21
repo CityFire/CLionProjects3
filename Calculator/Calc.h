@@ -5,10 +5,10 @@
 #ifndef CALCULATOR_CALC_H
 #define CALCULATOR_CALC_H
 
+#include <string>
 #include "SymbolTable.h"
 #include "Storage.h"
 #include "FunctionTable.h"
-#include <string>
 
 class Parser;
 

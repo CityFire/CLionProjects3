@@ -9,8 +9,9 @@
 #include "Node.h"
 #include "Calc.h"
 #include "Exception.h"
+#include "DebugNew.h"
 
-Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), tree_(0)
+Parser::Parser(Scanner& scanner, Calc& calc) : scanner_(scanner), calc_(calc), tree_(0), status_(STATUS_OK)
 {
 
 }

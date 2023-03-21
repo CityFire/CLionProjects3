@@ -2,11 +2,12 @@
 // Created by wjc on 2023/3/20.
 //
 
-#include "Node.h"
-#include "Storage.h"
 #include <cmath>
 #include <cassert>
 #include <iostream>
+#include "Node.h"
+#include "Storage.h"
+#include "DebugNew.h"
 
 double NumberNode::Calc() const
 {

@@ -4,9 +4,11 @@
 #include "Parser.h"
 #include "Calc.h"
 #include "Exception.h"
+#include "DebugNew.h"
 
 int main() {
 
+    int* p = new int;
     Calc calc;
     STATUS status = STATUS_OK;
     do {
