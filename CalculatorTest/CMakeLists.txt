@@ -3,4 +3,4 @@ project(CalculatorTest)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(CalculatorTest main.cpp Tracer.cpp Tracer.h DebugNew.h)
+add_executable(CalculatorTest main.cpp Tracer.cpp Tracer.h DebugNew.h Node.cpp Node.h)
