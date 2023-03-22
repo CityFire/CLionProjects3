@@ -129,7 +129,7 @@ private:
 
 auto_ptr<SingletonAutoPtr> SingletonAutoPtr::instance_;
 
-int main(void)
+int SingletonAutoPtrmain(void)
 {
 //    SingletonAutoPtr s1;
 //    SingletonAutoPtr s2;
