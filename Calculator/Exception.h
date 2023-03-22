@@ -15,6 +15,10 @@ public:
     {
         FillStackTrace();
     }
+    explicit Exception(const std::string& message) : message_(message)
+    {
+        FillStackTrace();
+    }
     virtual ~Exception() throw()
     {
 
@@ -31,6 +35,11 @@ class SyntaxError : public Exception
 {
 public:
     explicit SyntaxError(const char* message) : Exception(message)
+    {
+
+    }
+
+    explicit SyntaxError(const std::string& message) : Exception(message)
     {
 
     }

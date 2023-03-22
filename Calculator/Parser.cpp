@@ -3,6 +3,7 @@
 //
 
 #include <iostream>
+#include <sstream>
 #include <assert.h>
 #include "Parser.h"
 #include "Scanner.h"
@@ -157,9 +158,14 @@ std::auto_ptr<Node> Parser::Factor()
                  else {
                      status_ = STATUS_ERROR;
                      //std::cout<<"Unknown function "<<"\""<<symbol<<"\""<<std::endl;
-                     char buf[256] = {0};
-                     sprintf(buf, "Unknown function \"%s\".", symbol.c_str());
-                     throw SyntaxError(buf);
+
+//                     char buf[256] = {0};
+//                     sprintf(buf, "Unknown function \"%s\".", symbol.c_str());
+//                     throw SyntaxError(buf);
+                     std::ostringstream oss;
+                     oss<<"Unknown function \""<<symbol<<"\".";
+                     throw SyntaxError(oss.str());
+
                  }
              }
              else
