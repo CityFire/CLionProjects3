@@ -164,7 +164,7 @@ class AssignNode : public BinaryNode
 public:
     AssignNode(std::auto_ptr<Node>& left, std::auto_ptr<Node>& right) : BinaryNode(left, right)
     {
-        assert(left->IsLvalue());
+        assert(left_->IsLvalue());  // a = 7 赋值时会有问题
     }
     double Calc() const;
 };
