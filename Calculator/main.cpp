@@ -5,6 +5,7 @@
 #include "Calc.h"
 #include "Exception.h"
 #include "DebugNew.h"
+#include "CommandParser.h"
 
 int main() {
 
@@ -18,30 +19,38 @@ int main() {
         Scanner scanner(std::cin);
         if (!scanner.IsEmpty())
         {
-            Parser parser(scanner, calc);
-            try
+            if (scanner.IsCommand())
             {
-                status = parser.Parse();
-                if (status == STATUS_OK)
+                CommandParser parser(scanner, calc);
+                status = parser.Execute();
+            }
+            else
+            {
+                Parser parser(scanner, calc);
+                try
                 {
-                    std::cout << parser.Calculate() << std::endl;
+                    status = parser.Parse();
+                    if (status == STATUS_OK)
+                    {
+                        std::cout << parser.Calculate() << std::endl;
+                    }
                 }
-            }
-            catch (SyntaxError& se)
-            {
-                status = STATUS_QUIT;
-                std::cout<<se.what()<<std::endl;
-                std::cout<<se.StackTrace()<<std::endl;
-            }
-            catch (Exception& e)
-            {
-                status = STATUS_QUIT;
-                std::cout<<e.what()<<std::endl;
-            }
-            catch (...)
-            {
-                status = STATUS_QUIT;
-                std::cout<<"Internal error."<<std::endl;
+                catch (SyntaxError& se)
+                {
+                    status = STATUS_QUIT;
+                    std::cout<<se.what()<<std::endl;
+                    std::cout<<se.StackTrace()<<std::endl;
+                }
+                catch (Exception& e)
+                {
+                    status = STATUS_QUIT;
+                    std::cout<<e.what()<<std::endl;
+                }
+                catch (...)
+                {
+                    status = STATUS_QUIT;
+                    std::cout<<"Internal error."<<std::endl;
+                }
             }
         }
         else

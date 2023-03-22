@@ -28,6 +28,11 @@ bool Scanner::isDone() const
     return token_ == TOKEN_END;
 }
 
+bool Scanner::IsCommand() const
+{
+    return token_ == TOKEN_COMMAND;
+}
+
 double Scanner::Number() const
 {
     return number_;
@@ -62,6 +67,9 @@ void Scanner::Accept()
     ReadChar();
 //    switch (buf_[curPos_]) {
     switch (look_) {
+        case '!':
+            token_ = TOKEN_COMMAND;
+            break;
         case '+':
             token_ = TOKEN_PLUS;
 //            ++curPos_;
@@ -128,5 +136,16 @@ void Scanner::Accept()
             else
                 token_ = TOKEN_ERROR;
             break;
+    }
+}
+
+void Scanner::AcceptCommand()
+{
+    ReadChar();
+    symbol_.erase();
+    while (!isspace(look_))
+    {
+        symbol_ += look_;
+        look_ = in_.get();
     }
 }

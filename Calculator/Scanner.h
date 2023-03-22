@@ -8,6 +8,7 @@
 
 enum EToken
 {
+    TOKEN_COMMAND,
     TOKEN_END,
     TOKEN_ERROR,
     TOKEN_NUMBER,
@@ -27,8 +28,10 @@ public:
 //    Scanner(const std::string& buf);
     explicit Scanner(std::istream& in);
     void Accept();
+    void AcceptCommand();
     bool IsEmpty() const;
     bool isDone() const;
+    bool IsCommand() const;
     double Number() const;
     std::string GetSymbol() const;
     EToken Token() const;
