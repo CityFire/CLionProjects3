@@ -16,7 +16,10 @@ class Calc {
     friend class Parser;
 public:
     Calc() : funTbl_(symTbl_), storage_(symTbl_) {}
+    void ListFun() const;
+    void ListVar() const;
 private:
+    bool GetVariableValue(unsigned int id, double& val) const;
     Storage& GetStorage()
     {
         return storage_;

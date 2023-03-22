@@ -16,6 +16,9 @@ public:
     unsigned int Find(const std::string& str) const;
     void Clear();
     std::string GetSymbolName(unsigned int id) const;
+
+    unsigned int GetCurId() const { return curId_; }
+
 private:
     std::map<const std::string, unsigned int> dictionary_;
     unsigned int curId_;

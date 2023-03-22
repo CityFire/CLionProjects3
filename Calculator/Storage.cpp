@@ -43,12 +43,13 @@ double Storage::GetValue(unsigned int id) const
 
 void Storage::SetValue(unsigned int id, double val)
 {
+    assert(id >= 0);  // 调试一个bug
     if (id < cells_.size())
     {
         cells_[id] = val;
         inits_[id] = true;
     }
-    else if (id == cells_.size())
+    else
     {
         AddValue(id, val);
     }

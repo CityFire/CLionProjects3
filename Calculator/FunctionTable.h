@@ -13,6 +13,7 @@ class FunctionTable {
 public:
     FunctionTable(SymbolTable& tbl);
     ~FunctionTable();
+
     void Init(SymbolTable& tbl);
     unsigned int Size() const
     {
@@ -22,6 +23,9 @@ public:
     {
         return pFuns_[id];
     }
+
+    unsigned int GetSize() const { return size_; }
+
 private:
     PtrFun* pFuns_;
     unsigned int size_;

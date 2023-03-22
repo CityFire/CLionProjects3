@@ -12,7 +12,7 @@ CommandParser::CommandParser(Scanner &scanner, Calc &calc) : scanner_(scanner), 
 {
     assert(scanner_.IsCommand());
     scanner.Accept();
-    std::string cmd = scanner_.GetSymbol();
+    cmdName_ = scanner_.GetSymbol();
     switch (cmdName_[0])
     {
         case 'h':
@@ -88,11 +88,13 @@ void CommandParser::Help() const
 void CommandParser::ListVar() const
 {
     std::cout<<"variable list:"<<std::endl;
+    calc_.ListVar();
 }
 
 void CommandParser::ListFun() const
 {
     std::cout<<"function list:"<<std::endl;
+    calc_.ListFun();
 }
 
 STATUS CommandParser::Load(const std::string &fileName)
