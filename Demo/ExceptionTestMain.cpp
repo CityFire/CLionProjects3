@@ -178,7 +178,7 @@ void myTerminate()
     cout<<"myTerminate..."<<endl;
 }
 
-int main(void)
+int exceptionmain(void)
 {
     set_terminate(myTerminate);
     /*
