@@ -27,7 +27,7 @@ public:
 
 //std::max
 
-int main(void)
+int templatemain(void)
 {
     cout<<::max(5.5, 6.6)<<endl;   // 自动推导 max(const int&, const int&)
     cout<<::max('a', 'c')<<endl;   // 自动推导 max(const int&, const int&)
