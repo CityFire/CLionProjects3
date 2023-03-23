@@ -1,4 +1,5 @@
 #include <iostream>
+#include <vector>
 using namespace std;
 #include "DebugNew.h"
 #include "Node.h"
@@ -78,6 +79,10 @@ int main(void) {
     NodePtr np2(np);   // 初始化默认拷贝构造函数 浅拷贝  ~Node... ~Node... 释放两次  指向同一个内存空间
     NodePtr np3;
     np3 = np2;   // 重载赋值运算符  // np3. ptr_ = np2.ptr_
+
+//    std::auto_ptr<Node> node(new Node);
+//    std::vector<std::auto_ptr<Node> > v;
+//    v.push_back(node);
 
     return 0;
 }

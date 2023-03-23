@@ -28,7 +28,7 @@ using namespace std;
 // 填充控制
 // 精度控制
 // 禁止输出
-int main(void)
+int istringstream03main(void)
 {
 //    system("chcp 936");
     int n = 64;
