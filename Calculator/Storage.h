@@ -6,12 +6,15 @@
 #define CALCULATOR_STORAGE_H
 
 #include <vector>
+#include "Serializer.h"
 
 class SymbolTable;
 
 class Storage {
 public:
     Storage(SymbolTable& tbl);
+    void Serialize(Serializer& out) const;
+    void DeSerialize(DeSerializer& in);
     void Clear();
     bool IsInit(unsigned int id) const;
     void AddConstants(SymbolTable& tbl);

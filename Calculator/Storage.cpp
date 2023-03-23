@@ -8,6 +8,32 @@
 #include "Storage.h"
 #include "SymbolTable.h"
 
+void Storage::Serialize(Serializer& out) const
+{
+    out<<cells_.size();
+    for (unsigned int i = 0; i < cells_.size(); ++i)
+        out<<cells_[i]<<inits_[i];
+}
+
+void Storage::DeSerialize(DeSerializer& in)
+{
+    cells_.clear();
+    inits_.clear();
+    unsigned int size;
+    in>>size;
+    cells_.resize(size);
+    inits_.resize(size);
+
+    for (unsigned int i = 0; i < size; ++i)
+    {
+        double d;
+        bool b;
+        in>>d>>b;
+        cells_[i] = d;
+        inits_[i] = b;
+    }
+}
+
 Storage::Storage(SymbolTable& tbl)
 {
     AddConstants(tbl);

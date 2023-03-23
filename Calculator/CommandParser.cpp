@@ -7,6 +7,7 @@
 #include "CommandParser.h"
 #include "Scanner.h"
 #include "Calc.h"
+#include "Exception.h"
 
 CommandParser::CommandParser(Scanner &scanner, Calc &calc) : scanner_(scanner), calc_(calc)
 {
@@ -97,14 +98,49 @@ void CommandParser::ListFun() const
     calc_.ListFun();
 }
 
+const long Version = 1;
+
 STATUS CommandParser::Load(const std::string &fileName)
 {
     std::cout<<"load \""<<fileName<<"\"."<<std::endl;
+    STATUS status = STATUS_OK;
+    try
+    {
+        DeSerializer in(fileName);
+        long ver;
+        in>>ver;
+        if (ver != Version)
+            throw Exception("Miss match version.");
+        calc_.DeSerialize(in);
+    }
+    catch (FileStreamError& e)
+    {
+        std::cout<<"Load Error: "<<e.what()<<std::endl;
+        status = STATUS_ERROR;
+    }
+    catch (Exception& e)
+    {
+        std::cout<<"Load Error: "<<e.what()<<std::endl;
+        status = STATUS_ERROR;
+    }
     return STATUS_OK;
 }
 
 STATUS CommandParser::Save(const std::string &fileName)
 {
     std::cout<<"save \""<<fileName<<"\"."<<std::endl;
+    STATUS status = STATUS_OK;
+    try
+    {
+        Serializer out(fileName);
+        out<<Version;
+        calc_.Serialize(out);
+    }
+    catch (FileStreamError& e)
+    {
+        std::cout<<"Save Error: "<<e.what()<<std::endl;
+        status = STATUS_ERROR;
+    }
+
     return STATUS_OK;
 }

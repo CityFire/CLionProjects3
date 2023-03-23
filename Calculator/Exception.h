@@ -50,4 +50,42 @@ public:
     }
 };
 
+class FileStreamError : public Exception
+{
+public:
+    explicit FileStreamError(const char* message) : Exception(message)
+    {
+
+    }
+
+    explicit FileStreamError(const std::string& message) : Exception(message)
+    {
+
+    }
+
+    virtual ~FileStreamError() throw()
+    {
+
+    }
+};
+
+class CheckNumberError : public Exception
+{
+public:
+    explicit CheckNumberError(const char* message) : Exception(message)
+    {
+
+    }
+
+    explicit CheckNumberError(const std::string& message) : Exception(message)
+    {
+
+    }
+
+    virtual ~CheckNumberError() throw()
+    {
+
+    }
+};
+
 #endif //CALCULATOR_EXCEPTION_H

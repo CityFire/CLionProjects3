@@ -7,11 +7,14 @@
 
 #include <map>
 #include <string>
+#include "Serializer.h"
 
-class SymbolTable {
+class SymbolTable : Serializable {
 public:
     enum { IDNOTFOUND = 0xffffffff };
     SymbolTable() : curId_(0) {}
+    void Serialize(Serializer& out) const;
+    void DeSerialize(DeSerializer& in);
     unsigned int Add(const std::string& str);
     unsigned int Find(const std::string& str) const;
     void Clear();

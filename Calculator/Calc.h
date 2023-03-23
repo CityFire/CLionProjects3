@@ -9,13 +9,16 @@
 #include "SymbolTable.h"
 #include "Storage.h"
 #include "FunctionTable.h"
+#include "Serializer.h"
 
 class Parser;
 
-class Calc {
+class Calc : public Serializable {
     friend class Parser;
 public:
     Calc() : funTbl_(symTbl_), storage_(symTbl_) {}
+    void Serialize(Serializer& out) const;
+    void DeSerialize(DeSerializer& in);
     void ListFun() const;
     void ListVar() const;
 private:
