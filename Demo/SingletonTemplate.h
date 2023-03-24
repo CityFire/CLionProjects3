@@ -13,12 +13,26 @@ public:
     {
 //        static T instance;    // 局部静态对象
 //        return instance;
-        if (instance_ == 0)
-            instance_ = new T;
 
+//        if (instance_ == 0)
+//            instance_ = new T;
+
+        Init();
         return *instance_;
     }
 private:
+    static void Init()
+    {
+        if (instance_ == 0)
+        {
+            instance_ = new T;
+            atexit(Destroy);
+        }
+    }
+    static void Destroy()
+    {
+        delete instance_;
+    }
     SingletonTemplate(const SingletonTemplate& other);
     SingletonTemplate& operator=(const SingletonTemplate& other);
     SingletonTemplate();
