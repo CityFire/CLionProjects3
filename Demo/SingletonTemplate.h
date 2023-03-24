@@ -11,8 +11,12 @@ class SingletonTemplate
 public:
     static T& GetInstance()
     {
-        static T instance;    // 局部静态对象
-        return instance;
+//        static T instance;    // 局部静态对象
+//        return instance;
+        if (instance_ == 0)
+            instance_ = new T;
+
+        return *instance_;
     }
 private:
     SingletonTemplate(const SingletonTemplate& other);
@@ -22,5 +26,8 @@ private:
 
     static T* instance_;
 };
+
+template <typename T>
+T* SingletonTemplate<T>::instance_ = 0;
 
 #endif //DEMO_SINGLETONTEMPLATE_H
