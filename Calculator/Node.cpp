@@ -64,11 +64,11 @@ double UMinusNode::Calc() const
 
 MultipleNode::~MultipleNode()
 {
-    std::vector<Node*>::const_iterator it;
-    for (it = childs_.begin(); it != childs_.end(); ++it)
-    {
-        delete *it;
-    }
+//    std::vector<Node*>::const_iterator it;
+//    for (it = childs_.begin(); it != childs_.end(); ++it)
+//    {
+//        delete *it;
+//    }
 }
 
 double SumNode::Calc() const

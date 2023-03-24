@@ -3,4 +3,4 @@ project(Calculator)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Calculator main.cpp Node.cpp Node.h Scanner.cpp Scanner.h Parser.cpp Parser.h SymbolTable.cpp SymbolTable.h Storage.cpp Storage.h Calc.cpp Calc.h FunctionTable.cpp FunctionTable.h Exception.cpp Exception.h Tracer.cpp Tracer.h DebugNew.h CommandParser.cpp CommandParser.h Serializer.cpp Serializer.h)
+add_executable(Calculator main.cpp Node.cpp Node.h Scanner.cpp Scanner.h Parser.cpp Parser.h SymbolTable.cpp SymbolTable.h Storage.cpp Storage.h Calc.cpp Calc.h FunctionTable.cpp FunctionTable.h Exception.cpp Exception.h Tracer.cpp Tracer.h DebugNew.h CommandParser.cpp CommandParser.h Serializer.cpp Serializer.h ptr_vector.h)
