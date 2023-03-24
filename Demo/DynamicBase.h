@@ -37,26 +37,43 @@ private:
 //__declspec(selectany) map<string, CREATE_FUNC> DynObjcetFactory::mapCls_;
 __attribute((weak)) map<string, CREATE_FUNC> DynObjcetFactory::mapCls_;  // 防止多次头文件导入多次引用  静态成员的定义性说明
 
-class Register
+//class Register
+//{
+//public:
+//    Register(const string& name, CREATE_FUNC func)
+//    {
+//        DynObjcetFactory::Register(name, func);
+//    }
+//};
+
+//#define REGISTER_CLASS(class_name) \
+//class class_name##Register { \
+//public: \
+//    static void* NewInstance() \
+//    { \
+//        return new class_name; \
+//    } \
+//private: \
+//    static Register reg_; \
+//}; \
+//Register class_name##Register::reg_(#class_name, class_name##Register::NewInstance)
+//CircleRegister
+
+template <typename T>
+class DelegatingClass
 {
 public:
-    Register(const string& name, CREATE_FUNC func)
+    DelegatingClass(const string& name)
     {
-        DynObjcetFactory::Register(name, func);
+        DynObjcetFactory::Register(name, &(DelegatingClass::NewInstance));
+    }
+
+    static void* NewInstance()
+    {
+        return new T;
     }
 };
 
-#define REGISTER_CLASS(class_name) \
-class class_name##Register { \
-public: \
-    static void* NewInstance() \
-    { \
-        return new class_name; \
-    } \
-private: \
-    static Register reg_; \
-}; \
-Register class_name##Register::reg_(#class_name, class_name##Register::NewInstance)
-//CircleRegister
+#define REGISTER_CLASS(class_name) DelegatingClass<class_name> class##class_name(#class_name)
 
 #endif //DEMO_DYNAMICBASE_H
