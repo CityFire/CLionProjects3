@@ -15,6 +15,12 @@ public:
 
 typedef SingletonTemplate<ApplicationImpl> Application;
 
+// 包装器
+// 线程安全的单例模式类
+// 普通锁
+// double check lock
+// pthread_once
+
 int main(void)
 {
     Application::GetInstance().Run();

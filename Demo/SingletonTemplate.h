@@ -5,6 +5,7 @@
 #ifndef DEMO_SINGLETONTEMPLATE_H
 #define DEMO_SINGLETONTEMPLATE_H
 
+#include <cstdlib>
 template <typename T>
 class SingletonTemplate
 {
