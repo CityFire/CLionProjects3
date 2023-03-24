@@ -3,6 +3,7 @@
 using namespace std;
 #include "DebugNew.h"
 #include "Node.h"
+#include "ptr_vector.h"
 
 // 自己实现malloc，在里面进行跟踪
 // valgrind、dalloc、efence
@@ -63,6 +64,24 @@ np3. ptr_ = np2.ptr_
 
 对象的析构函数在生存期结束的时候是确定被调用的。
  */
+
+class Test
+{
+public:
+    Test()
+    {
+        cout<<"Test..."<<endl;
+    }
+    Test(const Test& other)
+    {
+        cout<<"Copy Test..."<<endl;
+    }
+    ~Test()
+    {
+        cout<<"~Test..."<<endl;
+    }
+};
+
 int main(void) {
 //    int*p = new int;
 //    delete p;
@@ -83,6 +102,25 @@ int main(void) {
 //    std::auto_ptr<Node> node(new Node);
 //    std::vector<std::auto_ptr<Node> > v;
 //    v.push_back(node);
+
+/*
+    std::vector<Test*> v;
+    Test* t1 = new Test;
+    Test* t2 = new Test;
+    Test* t3 = new Test;
+
+    v.push_back(t1);
+    v.push_back(t2);
+    v.push_back(t3); */
+
+    ptr_vector<Test> v;
+    Test* t1 = new Test;
+    Test* t2 = new Test;
+    Test* t3 = new Test;
+
+    v.push_back(t1);
+    v.push_back(t2);
+    v.push_back(t3);
 
     return 0;
 }
