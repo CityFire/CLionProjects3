@@ -8,7 +8,74 @@ using namespace std;
 #include "Stack2.h"
 #include "Stack3.h"
 
-int main(void)
+template <typename T>
+class MyClass2
+{
+private:
+    typename T::SubType* ptr_;
+};
+
+class Test2
+{
+public:
+    typedef int SubType;
+};
+
+template <typename T>
+class MyClass
+{
+private:
+    T value;
+public:
+    // 成员模板
+    template <class X>
+    void Assign(const MyClass<X>& x)
+    {
+        value = x.GetValue();
+    }
+    T GetValue() const { return value; }
+};
+
+int mainzzzzzzzzza(void)
+{
+    MyClass<double> d;
+    MyClass<int> i;
+
+    d.Assign(d);  // OK
+    d.Assign(i);  // OK
+
+    MyClass2<Test2> mc;
+
+
+    return 0;
+}
+
+/*
+template <typename T>
+class MyClass
+{
+private:
+    T value;
+public:
+    void Assign(const MyClass<T>& x)
+    {
+        value = x.value;
+    }
+};
+
+int mainClassTemp(void)
+{
+    MyClass<double> d;
+    MyClass<int> i;
+
+    d.Assign(d);  // OK
+    d.Assign(i);  // Error
+
+    return 0;
+}
+ */
+
+int mainStack3(void)
 {
     Stack3<int, vector<int> > s;
     s.Push(1);
