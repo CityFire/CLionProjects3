@@ -4,7 +4,8 @@
 
 #include <iostream>
 #include <vector>
-//#include <>
+#include <algorithm>
+#include <list>
 using namespace std;
 
 void print_element(int n)
@@ -12,12 +13,47 @@ void print_element(int n)
     cout<<n<<' ';
 }
 
-int greater_than_3(int n)
+void add_3(int& n)
+{
+    n += 3;
+}
+
+bool greater_than_3(int n)
 {
     return n > 3;
 }
 
+// 变动性算法
 int main(void)
+{
+    int a[] = { 1, 2, 3, 4, 5 };
+    vector<int> v(a, a+5);
+    list<int> l(5);
+
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    for_each(v.begin(), v.end(), add_3);
+
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    for_each(l.begin(), l.end(), print_element);
+    cout<<endl;
+
+    copy(v.begin(), v.end(), l.begin());
+    for_each(l.begin(), l.end(), print_element);
+    cout<<endl;
+
+    copy_backward(v.begin(), v.end(), l.end());
+    for_each(l.begin(), l.end(), print_element);
+    cout<<endl;
+
+    return 0;
+}
+
+// 非变动性算法
+int mainAlgorithm(void)
 {
     int a[] = { 1, 2, 3, 4, 5 };
     vector<int> v(a, a+5);
@@ -28,7 +64,7 @@ int main(void)
         cout<<*it<<' ';
     }
     cout<<endl;
-
+// 非变动性算法
     for_each(v.begin(), v.end(), print_element);
     cout<<endl;
 
