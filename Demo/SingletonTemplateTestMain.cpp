@@ -21,7 +21,7 @@ typedef SingletonTemplate<ApplicationImpl> Application;
 // double check lock
 // pthread_once
 
-int main(void)
+int Applicationmain(void)
 {
     Application::GetInstance().Run();
     Application::GetInstance().Run();
