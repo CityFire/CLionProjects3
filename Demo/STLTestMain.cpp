@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <list>
+#include <numeric>
 using namespace std;
 
 void print_element(int n)
@@ -38,6 +39,73 @@ bool fun3(int a)
     return a < 10;
 }
 
+bool my_greater(int a, int b)
+{
+    return a > b;
+}
+
+int mult(int a, int b)
+{
+    return a * b;
+}
+
+int main(void)
+{
+    int a[] = {1, 2, 3, 4, 5, 6 };
+    vector<int> v(a, a + 6);
+
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    rotate(v.begin(), v.begin()+2, v.end());  // 变序性算法
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    sort(v.begin(), v.end());       // 排序算法
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    sort(v.begin(), v.end(), my_greater);
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    vector<int>::iterator it;
+    it = lower_bound(v.begin(), v.end(), 10);  // 已序区间算法
+    if (it != v.end())
+    {
+        cout<<it - v.begin()<<endl;
+    }
+
+    it = upper_bound(v.begin(), v.end(), 10);
+    if (it != v.end())
+    {
+        cout<<it - v.begin()<<endl;
+    }
+
+    // 累加
+    cout<<accumulate(v.begin(), v.end(), 0)<<endl;  // 数值算法
+
+    // 累乘
+    cout<<accumulate(v.begin(), v.end(), 1, mult)<<endl;
+
+    return 0;
+}
+
+int removemain(void)
+{
+    int a[] = {1, 2, 3, 4, 5, 6 };
+    vector<int> v(a, a + 6);
+
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    remove(v.begin(), v.end(), 3);  // 移除性算法
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    return 0;
+}
+
 char *GetMemory(void)
 {
     char p[] = "hello world";
@@ -63,7 +131,7 @@ char *strcpy2(char *strDest, const char *strSrc)
 }
 
 // 变动性算法
-int main(void)
+int mainchangealgorithm(void)
 {
     int a[] = { 1, 2, 3, 4, 5 };
     vector<int> v(a, a+5);
