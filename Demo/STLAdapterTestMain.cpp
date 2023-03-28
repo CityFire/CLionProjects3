@@ -41,7 +41,7 @@ bool check(int elem)
     return elem < 3;
 }
 
-int main(void)
+int mainAdapter(void)
 {
     int a[] = {1, 2, 3, 4, 5};
     vector<int> v(a, a+5);
