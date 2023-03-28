@@ -23,6 +23,45 @@ bool greater_than_3(int n)
     return n > 3;
 }
 
+int fun(int a)
+{
+    return 2 * a;
+}
+
+int fun2(int a, int b)
+{
+    return a + b;
+}
+
+bool fun3(int a)
+{
+    return a < 10;
+}
+
+char *GetMemory(void)
+{
+    char p[] = "hello world";
+    return p;
+}
+
+char GetMemory2(char *p)
+{
+    p = (char *) malloc(100);
+}
+
+void GetMemory3(char **p, int num)
+{
+    *p = (char *) malloc(num);
+}
+
+char *strcpy2(char *strDest, const char *strSrc)
+{
+    assert((strDest != NULL) && (strSrc != NULL));
+    char *address = strDest;
+    while ((*strDest++ = *strSrc++) != '\0');
+    return address;
+}
+
 // 变动性算法
 int main(void)
 {
@@ -47,6 +86,66 @@ int main(void)
 
     copy_backward(v.begin(), v.end(), l.end());
     for_each(l.begin(), l.end(), print_element);
+    cout<<endl;
+
+    char *str = NULL;
+    str = GetMemory();
+    printf(str);
+    cout<<endl;
+
+//    char *str2 = NULL;
+//    GetMemory2(str2);
+//    strcpy(str2, "hello world");
+//    printf(str2);
+//    cout<<endl;
+
+    char *str3 = NULL;
+    GetMemory3(&str3, 100);
+    strcpy(str3, "hello");
+    printf(str3);
+    cout<<endl;
+
+    char *str4 = (char *) malloc(100);
+    strcpy(str4, "hello");
+    free(str4);
+    if (str4 != NULL)
+    {
+        strcpy(str4, "hello world");
+        printf(str4);
+    }
+    cout<<endl;
+
+    char *destString = (char *)malloc(100);
+    char *destString2 = strcpy2(destString, "world");
+    cout<<destString2<<endl;
+
+    int a2[] = {1, 2, 3, 4, 5};
+    vector<int> v2(a2, a2 + 5);
+    list<int> l2(5);
+    list<int> l3(2);
+
+    transform(v2.begin(), v2.end(), l2.begin(), fun);
+    for_each(v2.begin(), v2.end(), print_element);
+    cout<<endl;
+    for_each(l2.begin(), l2.end(), print_element);
+    cout<<endl;
+
+    transform(v2.begin(), v2.begin()+2, v2.begin()+3, l3.begin(), fun2);
+    for_each(l3.begin(), l3.end(), print_element);
+    cout<<endl;
+
+    replace(v2.begin(), v2.end(), 5, 13);
+    for_each(v2.begin(), v2.end(), print_element);
+    cout<<endl;
+
+    replace_copy(v2.begin(), v2.end(), l2.begin(), 13, 3);
+    for_each(v2.begin(), v2.end(), print_element);
+    cout<<endl;
+    for_each(l2.begin(), l2.end(), print_element);
+    cout<<endl;
+
+    replace_copy_if(v2.begin(), v2.end(), l2.begin(), fun3, 0);
+    for_each(l2.begin(), l2.end(), print_element);
     cout<<endl;
 
     return 0;
