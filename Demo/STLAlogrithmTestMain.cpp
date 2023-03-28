@@ -57,7 +57,7 @@ private:
     int number_;
 };
 
-int main(void)
+int FunObjectmain(void)
 {
     int a[] = {1, 2, 3, 4, 5};
     vector<int> v(a, a+5);
