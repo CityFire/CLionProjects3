@@ -26,7 +26,7 @@ void ShowList(const list<int>& v)
     cout<<endl;
 }
 
-int main(void)
+int mainistream_iterator(void)
 {
     int a[] = {1, 2, 3, 4, 5};
     vector<int> v(a, a+5);
