@@ -83,7 +83,7 @@ void put_chess()
     }
 }
 
-int main(void)
+int main8queen(void)
 {
     for (size_t i = 0; i < board.size(); i++)
         board[i] = i;
