@@ -49,7 +49,66 @@ int mult(int a, int b)
     return a * b;
 }
 
+const int MAX = 8;
+vector<int> board(MAX);
+
+void show_result()
+{
+    for (size_t i = 0; i < board.size(); i++) {
+        cout<<"("<<i<<","<<board[i]<<")";
+    }
+    cout<<endl<<endl;
+};
+
+int check_cross()
+{
+    for (size_t i = 0; i < board.size(); i++) {
+        for (size_t j = i+1; j < board.size(); j++)
+        {
+            if ((j - i) == (size_t) abs(board[i] - board[j]))
+                return 1;
+        }
+    }
+    return 0;
+}
+
+void put_chess()
+{
+    while (next_permutation(board.begin(), board.end()))
+    {
+        if (!check_cross())
+        {
+            show_result();
+        }
+    }
+}
+
 int main(void)
+{
+    for (size_t i = 0; i < board.size(); i++)
+        board[i] = i;
+    put_chess();
+    return 0;
+}
+
+int permutationmain(void)
+{
+    int a[] = { 1, 2, 3, 4 };
+    vector<int> v(a, a+4);
+    for_each(v.begin(), v.end(), print_element);
+    cout<<endl;
+
+    // 全排列
+    while (next_permutation(v.begin(), v.end()))
+    {
+        for_each(v.begin(), v.end(), print_element);
+        cout<<endl;
+    }
+
+    return 0;
+}
+
+int mainalgorithm(void)
 {
     int a[] = {1, 2, 3, 4, 5, 6 };
     vector<int> v(a, a + 6);
