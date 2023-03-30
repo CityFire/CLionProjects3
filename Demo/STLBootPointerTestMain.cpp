@@ -1,7 +1,7 @@
 //
 // Created by wjc on 2023/3/29.
 //
-//#include <boost/scoped_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <vector>
 #include <functional>
 #include <map>
@@ -271,7 +271,7 @@ private:
     Obj member;
 };
 
-int mainCPlusPlus11(void)
+int main(void)// CPlusPlus11
 {
     Testable aa, bb;
     if (aa) {   }

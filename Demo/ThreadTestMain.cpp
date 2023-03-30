@@ -10,7 +10,36 @@
 #include <iostream>
 //#include <random>
 //#include <utility>
+#include <future>
+#include <atomic>
+#include <boost/timer.hpp>
 using namespace std;
+
+class ThreadSingleton {
+public:
+    static ThreadSingleton& instance()
+    {
+        static ThreadSingleton s;
+        return s;
+    }
+    void add(int n)
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        v_.emplace_back(n);
+    }
+    int count() const
+    {
+        return v_.size();
+    }
+private:
+    ThreadSingleton() {}
+public:
+    ThreadSingleton(ThreadSingleton const&) = delete;
+    void operator=(ThreadSingleton const&) = delete;
+private:
+    std::mutex mutex_;
+    std::vector<int> v_;
+};
 
 // 以使用任何可Callable的类型，来构造std::thread，比如函数对象
 class background_task
@@ -71,7 +100,61 @@ struct Foo {
     }
 };
 
-int main(void)
+void example01()
+{
+    // 返回值
+    // 我们如何从线程中拿到返回值呢？
+    // Lambda + 引用捕获
+    int r = 0;
+    std::thread t([&r]() {
+        r = 10;
+    });
+    t.join();
+    std::cout<<r<<std::endl;
+}
+
+void foo2(int m, int n, std::promise<int>&& p)
+{
+    p.set_value(m * n);
+}
+
+int foo3(int m, int n)
+{
+    return m * n;
+}
+
+void example02()
+{
+    // 使用std::promise和std::future
+    // std::promise和std::future提供了一种可以从异步方法中拿到执行结果的机制。
+    std::promise<int> p;
+    auto f = p.get_future();
+    std::thread t(&foo2, 5, 6, std::move(p));
+    t.join();
+    int i = f.get();
+    std::cout<<i<<std::endl; // 30
+
+    // 使用std::async
+    // 使用std::async可以简化上面例子的写法，它异步的执行一个函数，返回std::future类型的结果
+    auto f2 = std::async(foo3, 5, 6);
+    std::cout<<f2.get()<<std::endl;
+}
+
+std::atomic<bool> stop_flag {false};
+void fooo()
+{
+    while (true) {
+        cout<<"fooo start loop..."<<endl;
+        if (stop_flag) {
+            cout<<"fooo end loop..."<<endl;
+            return;
+        }
+        // do something
+        cout<<"fooo do something..."<<endl;
+    }
+}
+
+int mainexample(void)
 {
     int threadNums = 3;
     std::vector<std::thread> threadList;
@@ -136,5 +219,45 @@ int main(void)
     std::thread t3(&Foo::bar, &foo, 5);
     t3.join();
 
+    example01();
+
+    example02();
+
+    std::this_thread::sleep_for(std::chrono::seconds(10));
+
+    std::vector<std::thread> threads;
+    for (int i = 0; i < 10; ++i) {
+        threads.emplace_back(thread([](int i) {
+            ThreadSingleton::instance().add(i);
+        }, i));
+    }
+    for (auto& t : threads) {
+        t.join();
+    }
+    std::cout<<ThreadSingleton::instance().count()<<std::endl;
+
+
+
+
+    std::thread t5(fooo);
+    std::this_thread::sleep_for(std::chrono::milliseconds(100)); // 让子弹飞一会儿
+    stop_flag = true;
+    t5.join();
+
+
+    // 同时跑几个线程合适？
+    // 推荐使用std::thread::hardware_concurrency(), 在多核架构的运行环境上，这个返回值一般对应核的颗数。
+    cout<<"hardware_concurrency: "<<std::thread::hardware_concurrency()<<endl;
+
+    // 获取当前线程的标识
+    // 使用std::this_thread::get_id()
+
+    // std::async支持两种策略
+    // 默认使用std::launch::async, 惰性调用时使用std::launch::deferred
+
+    boost::timer tm;
+    std::cout << tm.elapsed() << std::endl;
+
     return 0;
 }
+
