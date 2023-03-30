@@ -11,7 +11,7 @@
 
 using namespace std;
 
-int main(void)
+int mainconst_iterator(void)
 {
     int a[] = {3, 1, 2, 3, 4};
     vector<int> v(a, a+5);
