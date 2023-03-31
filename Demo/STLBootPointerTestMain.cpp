@@ -70,7 +70,7 @@ void bad()
     f(boost::shared_ptr<int>(new int(2)), g());
 }
 
-int main(void)
+int mainscoped_ptr(void)
 {
     cout<<"Entering main..."<<endl;
     {

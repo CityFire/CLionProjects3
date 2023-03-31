@@ -55,6 +55,16 @@ float fun2(std::initializer_list<float> paras) {
     return res;
 }
 
+// decltype,以一个普通的表达式为参数返回该表达式的类型，在编译期进行
+template <typename T1, typename T2>
+auto Mul(const T1& t1, const T2& t2) -> decltype(t1 * t2) {
+    return t1 * t2;
+}
+
+double fooFun() {
+    return 2.0;
+}
+
 // Range-based for loop
 // 基于区间的迭代
 // C风格数组
@@ -192,6 +202,12 @@ class MyTemp {};
 template <typename SECOND>
 using MyAlias = MyTemp<int, SECOND, float>;
 
+using uint = unsigned int;
+
+template<typename T>
+using MapString = map<T, char*>;
+MapString<int> numberedString;
+
 // Unrestricted unions
 // 无限制联合体
 // 非默认构造类型可用于联合体
@@ -263,13 +279,39 @@ private:
     Obj member;
 };
 
-int mainCPlusPlus11(void)
+int mainCPlusPlus11(void)  // CPlusPlus11
 {
     std::nullptr_t myNullPtr;
     if (myNullPtr == nullptr)
     {
         printf("test std::nullptr_t\n");
     }
+
+    string str2 = "Hello World!";
+    vector<string>v;
+    // 使用push_back(const T&)，复制str的内容，不是移动
+    v.push_back(str2);
+    cout<<"After copy, str is \""<<str2<<"\"\n"; // output->After copy, str is "Hello World!"
+    // 使用右值引用 push_back(T&&) ，移动str的内容，不是复制
+    v.push_back(move(str2));
+    cout << "After move, str is \"" << str2 << "\"\n"; // output->After move, str is ""
+    cout << "The contents of the vector are \"" << v[0] << "\", \"" << v[1] << "\"\n";
+    // output -> The contents of the vector are "Hello World!", "Hello World!"
+
+    int x;
+    int* y = &x;
+    auto *a2 = &x;
+    auto c1 = y;
+    auto *d = y;
+
+    auto& b = x;
+    const auto &f3 = fooFun();
+    auto &&f2 = fooFun();
+
+    auto g3 = x;
+    auto &h = x;
+
+
     Testable aa, bb;
     if (aa) {}
 //    if (aa > bb) {  }

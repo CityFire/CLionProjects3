@@ -154,7 +154,15 @@ void fooo()
     }
 }
 
-int mainexample(void)
+std::atomic<long> total{0};
+void func(int ) {
+    for (long long i = 0; i < 100000LL; ++i) {
+        total += i;
+        cout<<i<<endl;
+    }
+}
+
+int main(void)
 {
     int threadNums = 3;
     std::vector<std::thread> threadList;
@@ -257,6 +265,13 @@ int mainexample(void)
 
     boost::timer tm;
     std::cout << tm.elapsed() << std::endl;
+
+
+    thread th1(func, 0);
+    thread th2(func, 0);
+    th1.join();
+    th2.join();
+    cout<<total<<endl;
 
     return 0;
 }
