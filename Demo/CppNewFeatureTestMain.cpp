@@ -265,6 +265,11 @@ private:
 
 int mainCPlusPlus11(void)
 {
+    std::nullptr_t myNullPtr;
+    if (myNullPtr == nullptr)
+    {
+        printf("test std::nullptr_t\n");
+    }
     Testable aa, bb;
     if (aa) {}
 //    if (aa > bb) {  }
