@@ -19,7 +19,7 @@ void* func(void*) {
     return NULL;
 }
 
-int mainpthread_t(void)
+int mainpthread_t(void) // pthread_t
 {
     pthread_t  thread1, thread2;
     if (pthread_create(&thread1, NULL, &func, NULL)) {

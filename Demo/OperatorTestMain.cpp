@@ -73,6 +73,7 @@ public:
     int n_;
 };
 
+/*
 void* operator new(size_t size)
 {
     cout<<"global void* operator new(size_t size)"<<endl;
@@ -99,6 +100,8 @@ void operator delete[](void* p)
     free(p);
 }
 
+ */
+
 int main7654(void)
 {
     TestBB* p1 = new TestBB(10);  // new operator = operator new + 构造函数的调用
@@ -113,6 +116,18 @@ int main7654(void)
 
     TestBB* p2 = new (chunk) TestBB(200);   // operator new(size_t, void *_Where)
                                                // placement new 不分配内存
+    // 什么是placement new
+    //placement new就是在用户指定的内存位置上（这个内存是已经预先分配好的）构建新的对象，
+    // 因此这个构建过程不需要额外分配内存，只需要调用对象的构造函数在该内存位置上构造对象即可
+    //语法格式：
+    //  address：placement new所指定的内存地址
+    //  ClassConstruct：对象的构造函数
+    //  Object * p = new (address) ClassConstruct(...);
+    //优点：
+    //在已分配好的内存上进行对象的构建，构建速度快
+    //已分配好的内存可以反复利用，有效的避免内存碎片问题
+
+
     cout<<p2->n_<<endl;
     p2->~TestBB();                             // 显式调用析构函数
 

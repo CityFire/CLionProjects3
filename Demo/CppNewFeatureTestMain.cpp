@@ -10,6 +10,8 @@
 #include <iostream>
 #include <random>
 #include <utility>
+#include <memory>
+#include <string>
 using namespace std;
 
 /// 强类型枚举
@@ -279,6 +281,93 @@ private:
     Obj member;
 };
 
+class B;
+class A
+{
+public:
+    shared_ptr<class B> m_spB;
+};
+
+class B
+{
+public:
+    shared_ptr<class A> m_spA;
+};
+
+class D;
+class C
+{
+public:
+    weak_ptr<class D> m_wpD;
+};
+
+class D
+{
+public:
+    weak_ptr<class C> m_wpC;
+};
+
+void test_loop_ref()
+{
+    weak_ptr<class A> wp1;
+    {
+        auto pA = make_shared<class A>();
+        auto pB = make_shared<class B>();
+
+        pA->m_spB = pB;
+        pB->m_spA = pA;
+
+        wp1 = pA;
+    }
+    cout<<"wp1 reference number: "<<wp1.use_count()<<"\n"; // 存在内存泄露，打印如下，wp1 reference number: 1
+
+    weak_ptr<class C> wp2;
+    {
+        auto pC = make_shared<class C>();
+        auto pD = make_shared<class  D>();
+
+        pC->m_wpD = pD;
+        pD->m_wpC = pC;
+
+        wp2 = pC;
+    }
+    cout << "wp2 reference number: " << wp2.use_count() << "\n";// 没有内存泄露，打印如下，wp2 reference number: 0
+}
+
+// C++11 新增_Pragma("once")来保证头文件只会被include一次，用以代替先前的两种写法,
+// _Pragma是一个操作符，可以用在宏定义中，比预处理指令灵活。
+#pragma once
+#ifndef THIS_HEADER
+#define THIS_HEADER
+#endif
+
+// 变长参数的宏定义是指在宏定义中参数列表的最后一个参数为省略号，
+// 预定义宏__VA_ARGS__可以在宏定义的实现部分替换省略号所代表的字符串。
+#define PR(...) printf(__VA_ARGS__)
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#if __cplusplus < 201103L
+#error "should use C++ 11 implementation"
+#endif
+
+#ifdef __cplusplus
+}
+#endif
+
+// C++11新增了静态断言static_assert, 即在预处理阶段做一些断言，
+// 静态断言的表达式结果必须是在编译期可以计算的表达式，可以放在任何
+// 名字空间，包括函数外部。assert只能用于运行时，且只能放在函数内部。
+
+// 用操作符noexcept替代原先的throw
+// 如下用法已经被c++废弃:
+void excpt_func() throw(int, double) {}
+void excpt_func2() throw() {}
+// 改为如下方式，可以没有常量表达式，默认是true:
+//void excpt_func3() noexcept(常量表达式)
+
 int mainCPlusPlus11(void)  // CPlusPlus11
 {
     std::nullptr_t myNullPtr;
@@ -310,6 +399,22 @@ int mainCPlusPlus11(void)  // CPlusPlus11
 
     auto g3 = x;
     auto &h = x;
+
+    // C++98中，智能指针采用auto_ptr ,拷贝的时候返回的是一个左值，且不能调用delete[],
+    // C++11 已经废弃,改用如下三种智能指针：
+    // unique_ptr：拥有管理内存的所有权，没有拷贝构造函数，只有移动构造函数，不能多个
+    // unique_ptr对象共享一段内存，可以自定义delete函数，从而支持delete [] 。
+    // share_ptr：通过计数方式多个share_ptr可以共享一段内存，当计数为0的时候，所管理
+    // 内存会被删除，可以自定义delete函数，从而支持delete[] 。
+    // weak_ptr：观察shared_ptr管理的内存对象 ，只观察但不拥有。成员函数lock返回
+    // shared_ptr对象，若对应内存已经删除，则shared_ptr对象==nullptr，
+    // weak_ptr对象可以拷贝构造，拷贝构造出来的对象和原对象观察的是同一段内存。
+    // 成员函数reset可以解除对内存的观察，注意，是解除观察，并不会删除对应内存对象。
+    // 可以避免因shared_ptr的循环引用而引起的内存泄露
+
+    // std::weak_ptr 用来避免 std::shared_ptr 的循环引用
+    test_loop_ref();
+
 
 
     Testable aa, bb;
@@ -488,6 +593,31 @@ int mainCPlusPlus11(void)  // CPlusPlus11
 
     const char *reg_esp = "[ ,.\\t\\n;:]";
 //    std::regex rgx(reg_esp);
+/*
+ * lambda被用来表示一种匿名函数，这种匿名函数代表了一种所谓的lambda calculus。
+ * 以lambda概念为基础的”函数式编程“是与命令式编程、面向对象编程等并列的一种编程范型。
+     [capture](parameters)mutable ->return-type{statement}
+   其中，
+     [capture] :捕捉列表，[]是lambda引出符，编译器根据该引出符判断接下来的代码是否是lambda函数。
+     捕捉列表用于捕捉父域中的变量以供lambda函数使用，[var]表示以值传递方式捕捉父域中的变量var，
+     [=]表示以值传递方式捕捉父域中的所有变量（包括this），[&var]表示以引用传递方式捕捉父域中的
+     变量var，[&]表示以引用传递方式捕捉父域中的所有变量（包括this）,[this]表示以值传递方式捕捉
+     当前的this指针。
+     (parameters):参数列表，与普通函数的参数列表一致，如果不需要参数传递，则可以连同括号()一起省略。
+     mutable: mutable修饰符，默认情况下，lambda函数总是一个const函数，mutable可以取消其常量性。
+     在使用该修饰符时，参数列表不可省略（即使参数为空）。
+     ->return-type: 返回类型，用追踪返回类型形式声明函数的返回类型，不需要返回值的时候可以连同符
+     号->一起省略。在返回类型明确的情况下，也可以省略该部分，让编译器对返回类型进行推导。
+     {statement}: 函数体，内容与普通函数一样，不过除了可以使用参数之外，还可以使用所有捕获的变量。
+ */
+    int aaa = 3;
+    int bbb = 4;
+    int ccc = 5;
+    auto funf = [=, &bbb](int c) -> int {
+        return bbb += aaa + ccc;
+    };
+    std::cout<<"fun ret="<<funf(ccc)<<std::endl;
+    std::cout<<"bbb="<<bbb<<std::endl;
 // Lambda函数和表达式
     std::function<double(double)> f0 = [](double x) { return 1; };
     auto f1 = [](double x) { return 1; };

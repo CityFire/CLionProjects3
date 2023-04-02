@@ -295,8 +295,8 @@ int main7766(void)
 
 int n; // 未初始化的全局变量，初始值为0。n存储于.bss段中。(Block Started by Symbol) 不占用空间
 int n2 = 100; // 已初始化的全局变量，初始值为100.n2存储于.data段中。
-Test g(100);    // 全局对象的构造先于main函数
-static Test g2(200);
+//Test g(100);    // 全局对象的构造先于main函数
+//static Test g2(200);
 
 int main1330(void)
 {

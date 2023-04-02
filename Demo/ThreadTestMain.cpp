@@ -162,7 +162,7 @@ void func(int ) {
     }
 }
 
-int main(void)
+int mainThread(void)
 {
     int threadNums = 3;
     std::vector<std::thread> threadList;
