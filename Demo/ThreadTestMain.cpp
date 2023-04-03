@@ -13,6 +13,7 @@
 #include <future>
 #include <atomic>
 #include <boost/timer.hpp>
+#include <barrier>
 using namespace std;
 
 class ThreadSingleton {
@@ -69,6 +70,59 @@ public:
     {
         cout<<"do_something_else..."<<endl;
     }
+};
+
+class MyThread
+{
+public:
+    // 入口线程函数
+    void Main()
+    {
+        cout<<"MyThread Main"<<name<<":"<<"age:"<<age<<endl;
+    }
+    string name;
+    int age = 100;
+};
+
+class XThread
+{
+public:
+    virtual void Start()
+    {
+        is_exit_ = false;
+        th_ = std::thread(&XThread::Main, this);
+    }
+    virtual void Stop()
+    {
+        is_exit_ = true;
+        Wait();
+    }
+    virtual void Wait()
+    {
+        if (th_.joinable())
+            th_.join();
+    }
+    bool is_exit() { return is_exit_; }
+private:
+    virtual void Main() = 0;
+    std::thread th_;
+    bool is_exit_ = false;
+};
+
+class TestXThread : public XThread
+{
+public:
+    void Main() override
+    {
+        cout<<"TestXThread Main begin"<<endl;
+        while (!is_exit())
+        {
+            this_thread::sleep_for(100ms);
+            cout<<"."<<flush;
+        }
+        cout<<"TestXThread Main end"<<endl;
+    }
+    string name;
 };
 
 void do_some_work(int num) {
@@ -140,29 +194,96 @@ void example02()
     std::cout<<f2.get()<<std::endl;
 }
 
+void TestFuture(promise<string> p)
+{
+    cout<<"begin TestFuture"<<endl;
+    this_thread::sleep_for(1s);
+    cout<<"begin set value"<<endl;
+    p.set_value("TestFuture value");
+    this_thread::sleep_for(1s);
+    cout<<"end TestFuture"<<endl;
+}
+
 std::atomic<bool> stop_flag {false};
 void fooo()
 {
     while (true) {
-        cout<<"fooo start loop..."<<endl;
+//        cout<<"fooo start loop..."<<endl;
         if (stop_flag) {
-            cout<<"fooo end loop..."<<endl;
+//            cout<<"fooo end loop..."<<endl;
             return;
         }
         // do something
-        cout<<"fooo do something..."<<endl;
+//        cout<<"fooo do something..."<<endl;
     }
 }
 
 std::atomic<long> total{0};
 void func(int ) {
-    for (long long i = 0; i < 100000LL; ++i) {
+    for (long long i = 0; i < 100LL; ++i) {
         total += i;
         cout<<i<<endl;
     }
 }
 
-int mainThread(void)
+void SystemInit()
+{
+    cout<<"Call SystemInit"<<endl;
+}
+
+void callOnceSystemInit()
+{
+    static std::once_flag flag;
+    std::call_once(flag, SystemInit);
+}
+
+// RAII
+class XMutex
+{
+public:
+    XMutex(mutex& mux) : mux_(mux)
+    {
+        cout<<"Lock"<<endl;
+        mux.lock();
+    }
+    ~XMutex()
+    {
+        cout<<"Unlock"<<endl;
+        mux_.unlock();
+    }
+private:
+    mutex& mux_;
+};
+static mutex mux;
+void TestMutex(int status)
+{
+    XMutex lock(mux);
+    if (status == 1)
+    {
+        cout<<"=1"<<endl;
+        return;
+    }
+    else
+    {
+        cout<<"!=1"<<endl;
+        return;
+    }
+}
+
+void TestThread()
+{
+    mux.lock();
+//    if (mux.try_lock())
+    cout<<"======================"<<endl;
+    cout<<"test 001"<<endl;
+    cout<<"test 002"<<endl;
+    cout<<"test 003"<<endl;
+    cout<<"======================"<<endl;
+    mux.unlock();
+}
+
+
+int main(void) // Thread
 {
     int threadNums = 3;
     std::vector<std::thread> threadList;
@@ -266,12 +387,55 @@ int mainThread(void)
     boost::timer tm;
     std::cout << tm.elapsed() << std::endl;
 
+    MyThread myth;
+    myth.name = "Test name 001";
+    myth.age = 20;
+    thread th(&MyThread::Main, &myth);
+    th.join();
+
+
+    TestXThread testTh;
+    testTh.name = "TestXThread name";
+    testTh.Start();
+    this_thread::sleep_for(3s);
+    testTh.Stop();
+
+    testTh.Wait();
+    getchar();
+
+
+    callOnceSystemInit();
+    callOnceSystemInit();
+    for (int i = 0; i < 3; ++i) {
+        thread th(callOnceSystemInit);
+        th.detach();
+    }
+
+
+    TestMutex(1);
+    TestMutex(2);
+
 
     thread th1(func, 0);
     thread th2(func, 0);
     th1.join();
     th2.join();
     cout<<total<<endl;
+
+
+    // 异步传输变量存储
+    promise<string> p;
+    // 用来获取线程异步值
+    auto future = p.get_future();
+
+    auto th3 = std::thread(TestFuture, move(p));
+    cout<<"begin future.get()"<<endl;
+    cout<<"future get() = "<<future.get()<<endl;
+    cout<<"end future.get()"<<endl;
+    th3.join();
+
+    int count = 3;
+//    barrier bar(count); c++ 20
 
     return 0;
 }

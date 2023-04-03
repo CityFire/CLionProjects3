@@ -65,7 +65,7 @@ void test()
 
 }
 
-int main(void)
+int mainInterview(void)
 {
     char str1[] = "abc";
 
