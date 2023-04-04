@@ -14,6 +14,9 @@
 #include <atomic>
 #include <boost/timer.hpp>
 #include <barrier>
+#include <sstream>
+#include "XMThread.h"
+#include "XMsgServer.h"
 using namespace std;
 
 class ThreadSingleton {
@@ -270,18 +273,226 @@ void TestMutex(int status)
     }
 }
 
+static mutex mux3;
 void TestThread()
 {
-    mux.lock();
-//    if (mux.try_lock())
+    mux3.lock();
+//    if (mux3.try_lock())
     cout<<"======================"<<endl;
     cout<<"test 001"<<endl;
     cout<<"test 002"<<endl;
     cout<<"test 003"<<endl;
     cout<<"======================"<<endl;
-    mux.unlock();
+    mux3.unlock();
 }
 
+void ThreadMainMux(int i)
+{
+    for(;;)
+    {
+        mux3.lock();
+        cout<<i<<"[in]"<<endl;
+        this_thread::sleep_for(1000ms);
+        mux3.unlock();
+        this_thread::sleep_for(1ms);
+    }
+}
+
+timed_mutex tmux;
+void ThreadMainTime(int i)
+{
+    for (;;)
+    {
+        if (!tmux.try_lock_for(chrono::milliseconds(1000)))
+        {
+            cout<<i<<"[try_lock_for_timeout]"<<endl;
+            continue;
+        }
+        cout<<i<<"[in]"<<endl;
+        this_thread::sleep_for(2000ms);
+        tmux.unlock();
+        this_thread::sleep_for(1ms);
+    }
+}
+
+recursive_mutex rmux;
+void Task1()
+{
+    rmux.lock();
+    cout<<"task1 [in]"<<endl;
+    rmux.unlock();
+}
+
+void Task2()
+{
+    rmux.lock();
+    cout<<"task2 [in]"<<endl;
+    rmux.unlock();
+}
+
+void ThreadMianRec(int i)
+{
+    for(;;)
+    {
+        rmux.lock();
+        Task1();
+        cout<<i<<"[i]"<<endl;
+        Task2();
+        rmux.unlock();
+        this_thread::sleep_for(1ms);
+    }
+}
+
+// c++ 17
+//shared_mutex smux;
+// c++ 14
+shared_timed_mutex stmux;
+void ThreadRead(int i)
+{
+    for (;;)
+    {
+        stmux.lock_shared();
+        cout<<this_thread::get_id()<<" "<<i<<" Read"<<endl;
+        this_thread::sleep_for(500ms);
+        stmux.unlock_shared();
+        this_thread::sleep_for(1ms);
+    }
+}
+
+void ThreadWrite(int i)
+{
+    for (;;)
+    {
+        stmux.lock_shared();
+        // 读取数据
+        stmux.unlock_shared();
+        stmux.lock(); // 互斥锁 写入
+        cout<<this_thread::get_id()<<" "<<i<<" Write"<<endl;
+        this_thread::sleep_for(300ms);
+        stmux.unlock();
+        this_thread::sleep_for(1ms);
+    }
+}
+
+/*
+template <class _Mutex>
+class My_lock_guard {
+public:
+    using mutex_type = _Mutex;
+    explicit My_lock_guard(_Mutex _Mtx) : _MyMutex(_Mtx)  // construct and lock
+    {
+        _MyMutex.lock();
+    }
+    My_lock_guard(_Mutex& _Mtx, adopt_lock_t) : _MyMutex(_Mtx) // construct but don't lock
+    {
+
+    }
+    ~My_lock_guard() noexcept {
+        _MyMutex.unlock();
+    }
+    My_lock_guard(const My_lock_guard&) = delete;
+    My_lock_guard& operator=(const My_lock_guard&) = delete;
+private:
+    _Mutex _MyMutex;
+};
+*/
+
+static mutex gmutex;
+void TestLockGuard(int i)
+{
+    gmutex.lock();
+    {
+        // 已经拥有锁，不lock
+        lock_guard<mutex> lock(gmutex);
+        // 结束释放锁
+    }
+    {
+        lock_guard<mutex> lock(gmutex);
+        cout<<"begin thread"<<i<<endl;
+    }
+    for (;;)
+    {
+        {
+            lock_guard<mutex> lock(gmutex);
+            cout<<"In"<<i<<endl;
+        }
+        this_thread::sleep_for(500ms);
+    }
+}
+
+//unique_lock<>
+static mutex mux1;
+static  mutex mux2;
+void TestScope1()
+{
+    this_thread::sleep_for(1000ms); // 模拟死锁 停100ms等另一个线程锁mux2
+    cout<<this_thread::get_id()<<" TestScope1 begin mux1 lock"<<endl;
+//    mux1.lock();
+    cout<<this_thread::get_id()<<" TestScope1 begin mux2 lock"<<endl;
+//    mux2.lock(); // 死锁
+    lock(mux1, mux2);
+
+    cout<<"TestScope1"<<endl;
+    this_thread::sleep_for(1000ms);
+
+    mux1.unlock();
+    mux2.unlock();
+}
+
+void TestScope2()
+{
+    cout<<this_thread::get_id()<<" TestScope2 begin mux2 lock"<<endl;
+    mux2.lock();
+    this_thread::sleep_for(100ms);
+    cout<<this_thread::get_id()<<" TestScope2 begin mux1 lock"<<endl;
+    mux1.lock(); // 死锁
+    cout<<"TestScope2"<<endl;
+    this_thread::sleep_for(1500ms);
+    mux1.unlock();
+    mux2.unlock();
+}
+
+// 条件变量
+        list<string> msgs_;
+mutex mux4;
+condition_variable cv;
+void ThreadWriter()
+{
+    for (int i = 0;;i++)
+    {
+        stringstream ss;
+        ss<<" Write msg "<<i;
+        unique_lock<mutex> lock(mux);
+        msgs_.push_back(ss.str());
+        lock.unlock();
+        cv.notify_one(); // 发送信号
+//        cv.notify_all();
+        this_thread::sleep_for(1s);
+    }
+}
+
+void ThreadReader(int i)
+{
+    for (;;)
+    {
+        cout<<" read msg "<<endl;
+        unique_lock<mutex> lock(mux);
+//        cv.wait(lock); // 解锁、阻塞等待信号
+        cv.wait(lock, [i]
+        {
+            cout<<i<<" wait"<<endl;
+//                return false;
+            return !msgs_.empty();
+        });
+        // 获取信号后锁定
+        while (!msgs_.empty())
+        {
+            cout<<i<<" read "<<msgs_.front()<<endl;
+            msgs_.pop_front();
+        }
+//        if (msgs_.empty()) return;
+    }
+}
 
 int main(void) // Thread
 {
@@ -436,6 +647,119 @@ int main(void) // Thread
 
     int count = 3;
 //    barrier bar(count); c++ 20
+
+//    for (int i = 0; i < 3; ++i) {
+//        thread th(ThreadWrite, i + 1);
+//        th.detach();
+//    }
+//
+//    for (int i = 0; i < 3; ++i) {
+//        thread th(ThreadRead, i + 1);
+//        th.detach();
+//    }
+
+    for (int i = 0; i < 3; ++i) {
+        thread th(TestLockGuard, i + 1);
+        th.detach();
+    }
+
+    {
+        static mutex mux;
+        {
+            unique_lock<mutex> lock(mux);
+            lock.unlock();
+            //临时释放锁
+            lock.lock();
+        }
+
+        {
+            // 已经拥有锁 不锁定 退出栈区解锁
+            mux.lock();
+            unique_lock<mutex> lock(mux, adopt_lock);
+        }
+
+        {
+            // 延后加锁 不拥有 退出栈区不解锁
+            unique_lock<mutex> lock(mux, defer_lock);
+            // 加锁 退出栈区解锁
+            lock.lock();
+        }
+
+        {
+            // 尝试加锁 不阻塞 失败不拥有锁
+            unique_lock<mutex> lock(mux, try_to_lock);
+            if (lock.owns_lock())
+            {
+                cout<<"owns_lock"<<endl;
+            }
+            else
+            {
+                cout<<"not owns_lock"<<endl;
+            }
+        }
+    }
+
+    {
+        // 共享锁
+        static shared_timed_mutex tmux;
+        // 读取锁 共享锁
+        {
+            // 调用共享锁
+            shared_lock<shared_timed_mutex> lock(tmux);
+            cout<<"read data"<<endl;
+            // 退出栈区 释放共享锁
+        }
+        // 写入锁 互斥锁
+        {
+            unique_lock<shared_timed_mutex> lock(tmux);
+            cout<<"write data"<<endl;
+        }
+    }
+
+    {
+        // scoped_lock C++ 17用于多个互斥体的免死锁RAII封装器 类似lock
+        // explicit scoped_lock(_Mutexes&... _Mtxes) : _MyMutexes(_Mtxes...) { // construct and lock
+        // }
+        // lock(mux1, mux2);
+        // mutex mux1, mux2;
+        // std::scoped_lock lock(mux1, mux2);
+    }
+
+    {
+        // 演示死锁情况
+        {
+            thread th(TestScope1);
+            th.join();
+        }
+        {
+            thread th(TestScope2);
+            th.join();
+        }
+    }
+
+    {
+//        thread th(ThreadWriter);
+//        th.detach();
+//        for (int i = 0; i < 3; ++i) {
+//            this_thread::sleep_for(100ms);
+//            thread th(ThreadReader, i + 1);
+//            th.detach();
+//        }
+//        getchar();
+    }
+
+    {
+        XMsgServer server;
+        server.Start();
+        for (int i = 0; i < 10; ++i) {
+            stringstream ss;
+            ss<<"msg:"<<i + 1;
+            server.SendMsg(ss.str());
+            this_thread::sleep_for(500ms);
+        }
+        server.Stop();
+        cout<<"Server stoped!"<<endl;
+    }
 
     return 0;
 }
