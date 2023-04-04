@@ -3,4 +3,4 @@ project(ThreadDemo)
 
 set(CMAKE_CXX_STANDARD 23)
 
-add_executable(ThreadDemo main.cpp XThread.cpp XThread.h XMsgServer.cpp XMsgServer.h)
+add_executable(ThreadDemo main.cpp XThread.cpp XThread.h XMsgServer.cpp XMsgServer.h SafeDequeue.cpp SafeDequeue.h)
