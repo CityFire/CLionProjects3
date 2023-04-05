@@ -724,6 +724,25 @@ shared_future	C++11	等待被异步设置的值（可能为其他 future 所引�
 
  这一小节中，我们来熟悉更多的可以在并发环境中使用的工具，它们都位于<future>头文件中。
  */
+// 对于面向对象编程来说，很多时候肯定希望以对象的方法来指定异步任务。
+class Worker {
+public:
+    Worker(int min, int max) : mMin(min), mMax(max) {} // 这里通过一个类来描述任务。这个类是对前面提到的任务的封装。它包含了任务的输入参数，和输出结果。
+    double work() { // work函数是任务的主体逻辑。
+        mResult = 0;
+        for (int i = mMin; i <= mMax; ++i) {
+            mResult += sqrt(i);
+        }
+        return mResult;
+    }
+    double getResult() {
+        return mResult;
+    }
+private:
+    int mMin;
+    int mMax;
+    double mResult;
+};
 
 // 主要API
 //API	                C++标准	说明
@@ -913,6 +932,13 @@ int main(void)
     // Lambda task in thread: 0x70000117f000
     // Async task with lambda finish, result: 2.10819e+13
 
+    // 对于面向对象编程来说，很多时候肯定希望以对象的方法来指定异步任务。
+    Worker w(0, MAX);
+    cout << "Task in class triggered" << endl;
+    auto f3 = async(&Worker::work, &w); // 通过async执行任务：这里指定了具体的任务函数以及相应的对象。请注意这里是&w，
+    // 因此传递的是对象的指针。如果不写&将传入w对象的临时复制。
+    f3.wait();
+    cout << "Task in class finish, result: " << w.getResult() << endl << endl;
 
     getchar();
 
