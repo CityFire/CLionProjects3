@@ -471,6 +471,17 @@ void concurrent_task(int min, int max) {
     cout << "Concurrent task finish, " << ms << " ms consumed, Result: " << sum << endl;
 }
 
+/*
+ * 通用锁定算法
+主要API
+API	        C++标准	说明
+lock	    C++11	锁定指定的互斥体，若任何一个不可用则阻塞
+try_lock	C++11	试图通过重复调用 try_lock 获得互斥体的所有权
+要避免死锁，需要仔细的思考和设计业务逻辑。
+
+有一个比较简单的原则可以避免死锁，即：对所有的锁进行排序，每次一定要按照顺序来获取锁，不允许乱序。
+ 例如：要获取某个玩具，一定要先拿到锁A，再拿到锁B，才能玩玩具。这样就不会死锁了。
+ */
 class Account
 {
 public:
@@ -579,6 +590,40 @@ void randomTransferMaybeDeadLock(Bank* bank, Account* accountA, Account* account
                  << randomMoney << " required" << endl;
         }
     }
+}
+
+/*
+通用互斥管理
+主要API
+API	        C++标准	说明
+lock_guard	C++11	实现严格基于作用域的互斥体所有权包装器
+unique_lock	C++11	实现可移动的互斥体所有权包装器
+shared_lock	C++14	实现可移动的共享互斥体所有权封装器
+scoped_lock	C++17	用于多个互斥体的免死锁 RAII 封装器
+锁定策略	    C++标准	说明
+defer_lock	C++11	类型为 defer_lock_t，不获得互斥的所有权
+try_to_lock	C++11	类型为try_to_lock_t，尝试获得互斥的所有权而不阻塞
+adopt_lock	C++11	类型为adopt_lock_t，假设调用方已拥有互斥的所有权
+
+互斥体（mutex相关类）提供了对于资源的保护功能，但是手动的锁定（调用lock或者try_lock）
+ 和解锁（调用unlock）互斥体是要耗费比较大的精力的，我们需要精心考虑和设计代码才行。因为
+ 我们需要保证，在任何情况下，解锁要和加锁配对，因为假设出现一条路径导致获取锁之后没有正常
+ 释放，就会影响整个系统。如果考虑方法还可以会抛出异常，这样的代码写起来会很费劲。
+
+鉴于这个原因，标准库就提供了上面的这些API。它们都使用了叫做RAII的编程技巧，来简化我们手动加锁和解锁的“体力活”。
+ */
+
+int g_i = 0;
+std::mutex g_i_mutex; // 全局的互斥体g_i_mutex用来保护全局变量g_i
+
+void safe_increment()
+{
+    std::lock_guard<std::mutex> lock(g_i_mutex); // 这是一个设计为可以被多线程环境使用的方法。因此需要通过互斥体
+    // 来进行保护。这里没有调用lock方法，而是直接使用lock_guard来锁定互斥体。
+    ++g_i;
+
+    std::cout << std::this_thread::get_id() << ": " << g_i << '\n';
+    // 在方法结束的时候，局部变量std::lock_guard<std::mutex> lock会被销毁，它对互斥体的锁定也就解除了
 }
 
 // 主要API
@@ -706,18 +751,30 @@ int main(void)
     concurrent_task(0, MAX);
 
     {
-        Account accountA("Paul", 100);
-        Account accountB("Moira", 100);
+//        Account accountA("Paul", 100);
+//        Account accountB("Moira", 100);
+//
+//        Bank aBank;
+//        aBank.addAccount(&accountA);
+//        aBank.addAccount(&accountB);
+//
+//        thread thread1(randomTransfer, &aBank, &accountA, &accountB);
+//        thread thread2(randomTransfer, &aBank, &accountB, &accountA);
+//
+//        thread1.join();
+//        thread2.join();
+    }
 
-        Bank aBank;
-        aBank.addAccount(&accountA);
-        aBank.addAccount(&accountB);
+    {
+        std::cout << "main: " << g_i << '\n';
 
-        thread thread1(randomTransfer, &aBank, &accountA, &accountB);
-        thread thread2(randomTransfer, &aBank, &accountB, &accountA);
+        std::thread t1(safe_increment); // 在多个线程中使用这个方法
+        std::thread t2(safe_increment);
 
-        thread1.join();
-        thread2.join();
+        t1.join();
+        t2.join();
+
+        std::cout << "main: " << g_i << '\n';
     }
 
 
