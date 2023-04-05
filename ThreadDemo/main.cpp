@@ -385,6 +385,17 @@ void work7(int& s) {
     }
 }
 
+/*
+ * 管理当前线程
+主要API
+API	C++标准	说明
+上面是一些在线程内部使用的API，它们用来对当前线程做一些控制。
+
+yield 通常用在自己的主要任务已经完成的时候，此时希望让出处理器给其他任务使用。
+get_id 返回当前线程的id，可以以此来标识不同的线程。
+sleep_for 是让当前线程停止一段时间。
+sleep_until 和sleep_for类似，但是是以具体的时间点为参数。这两个API都以chrono API（由于篇幅所限，这里不展开这方面内容）为基础。
+ */
 void print_time() {
     auto now = chrono::system_clock::now();
     auto in_time_t = chrono::system_clock::to_time_t(now);
@@ -406,6 +417,15 @@ void loop_thread() {
     }
 }
 
+/*
+ * 一次调用
+主要API
+API	C++标准	说明
+在一些情况下，我们有些任务需要执行一次，并且我们只希望它执行一次，例如资源的初始化任务。
+ 这个时候就可以用到上面的接口。这个接口会保证，即便在多线程的环境下，相应的函数也只会调用一次。
+
+下面就是一个示例：有三个线程都会使用init函数，但是只会有一个线程真正执行它。
+ */
 void init() {
     cout << "Initialing..." << endl;
     // Do something...
@@ -1045,8 +1065,23 @@ int main(void)
 
         // 需要注意的是，future对象只有被一个线程获取值。并且在调用get()之后，就没有可以获取的值了。
         // 如果从多个线程调用get()会出现数据竞争，其结果是未定义的。
-        
+
         //如果真的需要在多个线程中获取future的结果，可以使用shared_future。
+    }
+
+    {
+        /*
+         * 从C++17开始。<algorithm>和<numeric> 头文件的中的很多算法都添加了一个新的参数：sequenced_policy。
+
+借助这个参数，开发者可以直接使用这些算法的并行版本，不用再自己创建并发系统和划分数据来调度这些算法。
+
+sequenced_policy可能的取值有三种，它们的说明如下：
+
+| 变量 | 类型 | C++版本 | 说明
+| --- | --- | --- | --- |
+| execution::seq | execution::sequenced_policy | C++17 | 要求并行算法的执行可以不并行化 |
+| execution::par | execution::parallel_policy | C++17 | 指
+         */
     }
 
     getchar();
