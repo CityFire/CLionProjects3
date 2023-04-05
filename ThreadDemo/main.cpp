@@ -522,6 +522,16 @@ public:
         // lockB也是一样。但需要注意的是，这里传递了 adopt_lock表示：现在是已经获取到互斥体了的状态了，
         // 不用再次加锁（如果不加adopt_lock就是二次锁定了）
 
+        // 如果使用unique_lock这三行代码还有一种等价的写法：死锁呢
+//        unique_lock lockA(*accountA->getLock(), defer_lock);
+//        unique_lock lockB(*accountB->getLock(), defer_lock);
+//        lock(*accountA->getLock(), *accountB->getLock());
+        // 请注意这里lock方法的调用位置。这里先定义unique_lock指定了defer_lock，因此实际没有锁定互斥体，而是到第三行才进行锁定。
+
+        // 最后，借助scoped_lock，我们可以将三行代码合成一行，这种写法也是等价的。
+//        scoped_lock lockAll(*accountA->getLock(), *accountB->getLock());
+        // scoped_lock会在其生命周期范围内锁定互斥体，销毁的时候解锁。同时，它可以锁定多个互斥体，并且避免死锁。
+
         if (amount > accountA->getMoney()) { // 判断转出账户金额是否足够，如果不够此次转账失败。
             return false;
         }
@@ -625,6 +635,49 @@ void safe_increment()
     std::cout << std::this_thread::get_id() << ": " << g_i << '\n';
     // 在方法结束的时候，局部变量std::lock_guard<std::mutex> lock会被销毁，它对互斥体的锁定也就解除了
 }
+
+/*
+ * RAII
+上面的几个类（lock_guard，unique_lock，shared_lock，scoped_lock）都使用了一个叫做RAII的编程技巧。
+
+RAII全称是Resource Acquisition Is Initialization，直译过来就是：资源获取即初始化。
+
+RAII是一种C++编程技术，它将必须在使用前请求的资源（例如：分配的堆内存、执行线程、打开的套接字、
+ 打开的文件、锁定的互斥体、磁盘空间、数据库连接等——任何存在受限供给中的事物）的生命周期与一个对象的生存周期相绑定。
+
+RAII保证资源可用于任何会访问该对象的函数。它亦保证所有资源在其控制对象的生存期结束时，以获取顺序的逆序释放。
+ 类似地，若资源获取失败（构造函数以异常退出），则为已构造完成的对象和基类子对象所获取的所有资源，会以初始化顺序
+ 的逆序释放。这有效地利用了语言特性以消除内存泄漏并保证异常安全。
+
+RAII 可总结如下:
+
+将每个资源封装入一个类，其中：
+
+构造函数请求资源，并建立所有类不变式，或在它无法完成时抛出异常，
+析构函数释放资源并决不抛出异常；
+始终经由 RAII 类的实例使用满足要求的资源，该资源
+
+自身拥有自动存储期或临时生存期，或
+具有与自动或临时对象的生存期绑定的生存期
+
+ */
+
+/*
+ * 条件变量
+| API                       | C++标准 | 说明 |
+| condition_variable        | C++ 11 | 提供与 std::unique_lock 关联的条件变量 |
+| condition_variable_any    | C++ 11 | 提供与任何锁类型关联的条件变量 |
+| notify_all_at_thread_exit | C++ 11 | 安排到在此线程完全结束时对 notify_all 的调用 |
+| cv_status                 | C++ 11 | 列出条件变量上定时等待的可能结果 |
+
+ 条件变量提供了一个可以让多个线程间同步协作的功能。这对于生产者-消费者模型很有意义。在这个模型下：
+
+    生产者和消费者共享一个工作区。这个区间的大小是有限的。
+    生产者总是产生数据放入工作区中，当工作区满了。它就停下来等消费者消费一部分数据，然后继续工作。
+    消费者总是从工作区中拿出数据使用。当工作区中的数据全部被消费空了之后，它也会停下来等待生产者往工作区中放入新的数据。
+    
+从上面可以看到，无论是生产者还是消费者，当它们工作的条件不满足时，它们并不是直接报错返回，而是停下来等待，直到条件满足。
+ */
 
 // 主要API
 //API	                C++标准	说明
@@ -751,18 +804,18 @@ int main(void)
     concurrent_task(0, MAX);
 
     {
-//        Account accountA("Paul", 100);
-//        Account accountB("Moira", 100);
-//
-//        Bank aBank;
-//        aBank.addAccount(&accountA);
-//        aBank.addAccount(&accountB);
-//
-//        thread thread1(randomTransfer, &aBank, &accountA, &accountB);
-//        thread thread2(randomTransfer, &aBank, &accountB, &accountA);
-//
-//        thread1.join();
-//        thread2.join();
+        Account accountA("Paul", 100);
+        Account accountB("Moira", 100);
+
+        Bank aBank;
+        aBank.addAccount(&accountA);
+        aBank.addAccount(&accountB);
+
+        thread thread1(randomTransfer, &aBank, &accountA, &accountB);
+        thread thread2(randomTransfer, &aBank, &accountB, &accountA);
+
+        thread1.join();
+        thread2.join();
     }
 
     {
