@@ -505,6 +505,22 @@ public:
     }
 
     bool transferMoney(Account* accountA, Account* accountB, double amount) {
+        lock(*accountA->getLock(), *accountB->getLock()); // 通过lock函数来获取两把锁，标准库的实现会保证不会发生死锁。
+        lock_guard guardA(*accountA->getLock(), adopt_lock); // 在自身对象生命周期的范围内锁定互斥体
+        lock_guard guardB(*accountB->getLock(), adopt_lock); // 创建lock_guard的目的是为了在transferMoney结束的时候释放锁，
+        // lockB也是一样。但需要注意的是，这里传递了 adopt_lock表示：现在是已经获取到互斥体了的状态了，
+        // 不用再次加锁（如果不加adopt_lock就是二次锁定了）
+
+        if (amount > accountA->getMoney()) { // 判断转出账户金额是否足够，如果不够此次转账失败。
+            return false;
+        }
+
+        accountA->changeMoney(-amount); // 进行转账
+        accountB->changeMoney(amount);
+        return true;
+    }
+
+    bool transferMoneyMaybeDeadLock(Account* accountA, Account* accountB, double amount) {
         lock_guard guardA(*accountA->getLock()); // 为了保证线程安全，在修改每个账号之前，需要获取相应的锁
         lock_guard guardB(*accountB->getLock());
 
