@@ -3,6 +3,7 @@
 #include <mutex>
 #include <shared_mutex>
 #include <condition_variable>
+#include <future>
 #include <sstream>
 #include <list>
 #include <queue>
@@ -712,6 +713,18 @@ RAII 可总结如下:
 从上面可以看到，无论是生产者还是消费者，当它们工作的条件不满足时，它们并不是直接报错返回，而是停下来等待，直到条件满足。
  */
 
+/*
+future
+API	            C++标准	说明
+async	        C++11	异步运行一个函数，并返回保有其结果的std::future
+future	        C++11	等待被异步设置的值
+packaged_task	C++11	打包一个函数，存储其返回值以进行异步获取
+promise	        C++11	存储一个值以进行异步获取
+shared_future	C++11	等待被异步设置的值（可能为其他 future 所引用）
+
+ 这一小节中，我们来熟悉更多的可以在并发环境中使用的工具，它们都位于<future>头文件中。
+ */
+
 // 主要API
 //API	                C++标准	说明
 //mutex	                C++11	提供基本互斥设施
@@ -836,6 +849,7 @@ int main(void)
     serial_task(0, MAX);
     concurrent_task(0, MAX);
 
+    /*
     {
         Account accountA("Paul", 100);
         Account accountB("Moira", 100);
@@ -850,6 +864,7 @@ int main(void)
         thread1.join();
         thread2.join();
     }
+     */
 
     {
         std::cout << "main: " << g_i << '\n';
@@ -862,6 +877,41 @@ int main(void)
 
         std::cout << "main: " << g_i << '\n';
     }
+
+    // async
+    // 很多语言都提供了异步的机制。异步使得耗时的操作不影响当前主线程的执行流。
+
+    // 在C++11中，async便是完成这样的功能的。
+    sum = 0;
+    auto f1 = async(serial_worker, 0, MAX);
+    cout << "Async task triggered" << endl;
+    f1.wait();
+    cout << "Async task finish, result: " << sum << endl << endl; // Async task finish, result: 2.10819e+13
+    // 这里以异步的方式启动了任务。它会返回一个future对象。future用来存储异步任务的执行结果，
+    // 关于future我们在后面packaged_task的例子中再详细说明。在这个例子中我们仅仅用它来等待任务执行完成。此处是等待异步任务执行完成
+
+    // 需要注意的是，默认情况下，async是启动一个新的线程，还是以同步的方式（不启动新的线程）运行任务，这一点标准是没有指定的，
+    // 由具体的编译器决定。如果希望一定要以新的线程来异步执行任务，可以通过launch::async来明确说明。launch中有两个常量：
+    //
+    // async：运行新线程，以异步执行任务。
+    // deferred：调用方线程上第一次请求其结果时才执行任务，即惰性求值。
+
+    // 除了通过函数来指定异步任务，还可以lambda表达式的方式来指定。
+    double result = 0;
+    cout << "Async task with lambda triggered, thread: " << this_thread::get_id() << endl;
+    auto f2 = async(launch::async, [&result]() {
+        cout << "Lambda task in thread: " << this_thread::get_id() << endl;
+        for (int i = 0; i <= MAX; i++) {
+            result += sqrt(i);
+        }
+    });
+    f2.wait();
+    cout << "Async task with lambda finish, result: " << result << endl << endl;
+    // 在上面这段代码中，我们使用一个lambda表达式来编写异步任务的逻辑，并通过launch::async明确指定要
+    // 通过独立的线程来执行任务，同时我们打印出了线程的id。
+    // Async task with lambda triggered, thread: 0x111abae00
+    // Lambda task in thread: 0x70000117f000
+    // Async task with lambda finish, result: 2.10819e+13
 
 
     getchar();
