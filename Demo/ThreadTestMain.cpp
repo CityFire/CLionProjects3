@@ -236,8 +236,8 @@ void SystemInit()
 
 void callOnceSystemInit()
 {
-    static std::once_flag flag;
-    std::call_once(flag, SystemInit);
+    static std::once_flag flag;       // 与call_once配合使用
+    std::call_once(flag, SystemInit); // 即便在多线程环境下，也能保证只调用某个函数一次
 }
 
 // RAII
@@ -346,7 +346,7 @@ void ThreadMianRec(int i)
 // c++ 17
 //shared_mutex smux;
 // c++ 14
-shared_timed_mutex stmux;
+shared_timed_mutex stmux; // 读时用lock_shared()和unlock_shared()，写时用lock()和unlock()
 void ThreadRead(int i)
 {
     for (;;)
@@ -673,12 +673,14 @@ int main(void) // Thread
         }
 
         {
+            // 表示互斥量已经被lock，不需要再重复lock。该互斥量之前必须已经lock，才可以使用该参数
             // 已经拥有锁 不锁定 退出栈区解锁
             mux.lock();
             unique_lock<mutex> lock(mux, adopt_lock);
         }
 
         {
+            // 这个参数表示暂时先不lock，之后手动去lock，但是使用之前也是不允许去lock。一般用来搭配unique_lock的成员函数去使用。
             // 延后加锁 不拥有 退出栈区不解锁
             unique_lock<mutex> lock(mux, defer_lock);
             // 加锁 退出栈区解锁
@@ -686,6 +688,12 @@ int main(void) // Thread
         }
 
         {
+            // 可以避免一些不必要的等待，会判断当前mutex能否被lock，如果不能被lock，
+            // 可以先去执行其他代码。这个和adopt不同，不需要自己提前加锁。举个例子来
+            // 说就是如果有一个线程被lock，而且执行时间很长，那么另一个线程一般会被阻
+            // 塞在那里，反而会造成时间的浪费。那么使用了try_to_lock后，如果被锁住了，
+            // 它不会在那里阻塞等待，它可以先去执行其他没有被锁的代码
+
             // 尝试加锁 不阻塞 失败不拥有锁
             unique_lock<mutex> lock(mux, try_to_lock);
             if (lock.owns_lock())
