@@ -764,7 +764,7 @@ double concurrent_future_worker(int min, int max) {
     return sum;
 }
 
-double concurrent_future_task(int min, int max) {
+double concurrent_packaged_task(int min, int max) {
     vector<future<double>> results; // 创建一个集合来存储future对象。我们将用它来获取任务的结果。
 
     unsigned concurrent_count = thread::hardware_concurrency();
@@ -790,6 +790,39 @@ double concurrent_future_task(int min, int max) {
     return sum;
 }
 
+/*
+promise与future
+在上面的例子中，concurrent_task的结果是通过return返回的。但在一些时候，我们可能不能这么做：
+ 在得到任务结果之后，可能还有一些事情需要继续处理，例如清理工作。
+
+这个时候，就可以将promise与future配对使用。这样就可以将返回结果和任务结束两个事情分开。
+ */
+// 下面是对上面代码示例的改写：
+void concurrent_promise_task(int min, int max, promise<double>* result) {
+    // concurrent_promise_task不再直接返回计算结果，而是增加了一个promise对象来存放结果。
+    vector<future<double>> results;
+
+    unsigned concurrent_count = thread::hardware_concurrency();
+    min = 0;
+    for (int i = 0; i < concurrent_count; i++) {
+        packaged_task<double(int, int)> task(concurrent_future_worker);
+        results.push_back(task.get_future());
+
+        int range = max / concurrent_count * (i + 1);
+        thread t(std::move(task), min, range);
+        t.detach();
+
+        min = range + 1;
+        cout << "threads create finish" << endl;
+        double sum = 0;
+        for (auto& r : results) {
+            sum += r.get();
+        }
+        result->set_value(sum); // 在任务计算完成之后，将总结过设置到promise对象上。
+        // 一旦这里调用了set_value，其相关联的future对象就会就绪。
+        cout << "concurrent_task finish" << endl;
+    }
+}
 
 // 主要API
 //API	                C++标准	说明
@@ -990,13 +1023,31 @@ int main(void)
 
     auto start_time = chrono::steady_clock::now();
 
-    double r = concurrent_future_task(0, MAX);
+    double r = concurrent_packaged_task(0, MAX);
 
     auto end_time = chrono::steady_clock::now();
     auto ms = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
     cout << "Concurrent task finish, " << ms << " ms consumed, Result: " << r << endl;
 
     // 在实际上的工程中，调用关系通常更复杂，你可以借助于packaged_task将任务组装成队列，然后通过线程池的方式进行调度
+
+    {
+        auto start_time = chrono::steady_clock::now();
+
+        promise<double> sum;
+        concurrent_promise_task(0, MAX, &sum);
+
+        auto end_time = chrono::steady_clock::now();
+        auto ms = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+        cout << "Concurrent task finish, " << ms << " ms consumed." << endl;
+        cout << "Result: " << sum.get_future().get() <<endl; // 通过sum.get_future().get()来获取结果。
+        // 第2点中已经说了：一旦调用了set_value，其相关联的future对象就会就绪。
+
+        // 需要注意的是，future对象只有被一个线程获取值。并且在调用get()之后，就没有可以获取的值了。
+        // 如果从多个线程调用get()会出现数据竞争，其结果是未定义的。
+        
+        //如果真的需要在多个线程中获取future的结果，可以使用shared_future。
+    }
 
     getchar();
 
