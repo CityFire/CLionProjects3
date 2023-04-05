@@ -744,6 +744,53 @@ private:
     double mResult;
 };
 
+/*
+packaged_task
+在一些业务中，我们可能会有很多的任务需要调度。这时我们常常会设计出任务队列和线程池的结构。此时，就可以使用packaged_task来包装任务。
+
+如果你了解设计模式，你应该会知道命令模式。
+
+packaged_task绑定到一个函数或者可调用对象上。当它被调用时，它就会调用其绑定的函数或者可调用对象。
+ 并且，可以通过与之相关联的future来获取任务的结果。调度程序只需要处理packaged_task，而非各个函数。
+
+packaged_task对象是一个可调用对象，它可以被封装成一个std::fucntion，或者作为线程函数传递给std::thread，或者直接调用。
+ */
+
+double concurrent_future_worker(int min, int max) {
+    double sum = 0;
+    for (int i = min; i <= max; i++) {
+        sum += sqrt(i);
+    }
+    return sum;
+}
+
+double concurrent_future_task(int min, int max) {
+    vector<future<double>> results; // 创建一个集合来存储future对象。我们将用它来获取任务的结果。
+
+    unsigned concurrent_count = thread::hardware_concurrency();
+    min = 0;
+    for (int i = 0; i < concurrent_count; i++) { // 同样的，根据CPU的情况来创建线程的数量。
+        packaged_task<double(int, int)> task(concurrent_future_worker); // 将任务包装成packaged_task。
+        // 请注意，由于concurrent_future_worker被包装成了任务，我们无法直接获取它的return值。而是要通过future对象来获取。
+        results.push_back(task.get_future()); // 获取任务关联的future对象，并将其存入集合中。
+
+        int range = max / concurrent_count * (i + 1);
+        thread t(std::move(task), min, range); // 通过一个新的线程来执行任务，并传入需要的参数。
+        t.detach();
+
+        min = range + 1;
+    }
+
+    cout << "threads create finish" << endl;
+    double sum = 0;
+    for (auto& r : results) {
+        sum += r.get(); // 通过future集合，逐个获取每个任务的计算结果，将其累加。
+        // 这里r.get()获取到的就是每个任务中concurrent_worker的返回值。
+    }
+    return sum;
+}
+
+
 // 主要API
 //API	                C++标准	说明
 //mutex	                C++11	提供基本互斥设施
@@ -939,6 +986,17 @@ int main(void)
     // 因此传递的是对象的指针。如果不写&将传入w对象的临时复制。
     f3.wait();
     cout << "Task in class finish, result: " << w.getResult() << endl << endl;
+
+
+    auto start_time = chrono::steady_clock::now();
+
+    double r = concurrent_future_task(0, MAX);
+
+    auto end_time = chrono::steady_clock::now();
+    auto ms = chrono::duration_cast<chrono::milliseconds>(end_time - start_time).count();
+    cout << "Concurrent task finish, " << ms << " ms consumed, Result: " << r << endl;
+
+    // 在实际上的工程中，调用关系通常更复杂，你可以借助于packaged_task将任务组装成队列，然后通过线程池的方式进行调度
 
     getchar();
 
