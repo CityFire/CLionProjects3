@@ -549,16 +549,16 @@ public:
     }
 
     bool transferMoney_lock_guard(Account* accountA, Account* accountB, double amount) {
-        lock(*accountA->getLock(), *accountB->getLock()); // 通过lock函数来获取两把锁，标准库的实现会保证不会发生死锁。
-        lock_guard guardA(*accountA->getLock(), adopt_lock); // 在自身对象生命周期的范围内锁定互斥体
-        lock_guard guardB(*accountB->getLock(), adopt_lock); // 创建lock_guard的目的是为了在transferMoney结束的时候释放锁，
+//        lock(*accountA->getLock(), *accountB->getLock()); // 通过lock函数来获取两把锁，标准库的实现会保证不会发生死锁。
+//        lock_guard guardA(*accountA->getLock(), adopt_lock); // 在自身对象生命周期的范围内锁定互斥体
+//        lock_guard guardB(*accountB->getLock(), adopt_lock); // 创建lock_guard的目的是为了在transferMoney结束的时候释放锁，
         // lockB也是一样。但需要注意的是，这里传递了 adopt_lock表示：现在是已经获取到互斥体了的状态了，
         // 不用再次加锁（如果不加adopt_lock就是二次锁定了）
 
-        // 如果使用unique_lock这三行代码还有一种等价的写法：死锁呢
-//        unique_lock lockA(*accountA->getLock(), defer_lock);
-//        unique_lock lockB(*accountB->getLock(), defer_lock);
-//        lock(*accountA->getLock(), *accountB->getLock());
+        // 如果使用unique_lock这三行代码还有一种等价的写法：
+        unique_lock lockA(*accountA->getLock(), defer_lock);
+        unique_lock lockB(*accountB->getLock(), defer_lock);
+        lock(lockA, lockB);
         // 请注意这里lock方法的调用位置。这里先定义unique_lock指定了defer_lock，因此实际没有锁定互斥体，而是到第三行才进行锁定。
 
         // 最后，借助scoped_lock，我们可以将三行代码合成一行，这种写法也是等价的。
@@ -875,8 +875,63 @@ void concurrent_promise_task(int min, int max, promise<double>* result) {
 | unlock_shared| 解锁共享锁 |
  */
 
+atomic<int> x;
+void increment()
+{
+    cout<<"x before is "<<x<<endl;
+    x++; // 不是x = x + 1
+    cout<<"x after is "<<x<<endl;
+}
+
+/*
+mutex mutex_x;
+atomic<bool> init_x;  // 初始为false
+int x_;
+
+class F { // 传统函数对象
+public:
+    F(const vector<double>& vv, double* p) : v{vv}, res{p} { }
+    void operator()();     // 将结果放入 *res
+private:
+    const vector<double>& v; // 输入源
+    double* res;   // 输出目标
+};
+
+double f(const vector<double>& v); // 传统函数
+void g(const vector<double>& v, double* res); // 将结果放入 *res
+int comp(vector<double>& vec1, vector<double>& vec2, vector<double>& vec3)
+{
+    double res1;
+    double res2;
+    double res3;
+    // ...
+//    thread t1 {F{vec1, res1}};  // 函数对象
+    thread t2 {[&](){res2 = f(vec2);}}; // lambda表达式
+    thread t3 {g, ref(vec3), &res3}; // 普通函数
+
+//    t1.join();
+    t2.join();
+    t3.join();
+
+    cout<<res1<<' '<<res2<<' '<<res3<<'\n';
+}
+ */
+
 int main(void)
 {
+    thread td1(increment);
+    thread td2(increment);
+    td1.join();
+    td2.join();
+
+    cout<<"now x is "<<x<<endl;
+
+//    if (!init_x) {
+//        lock_guard<mutex> lck(mutex_x);
+//        if (!init_x) x_ = 42;
+//        init_x = true;
+//    }  // 在此隐式释放 mutex_x（RAII)
+
     XMsgServer server;
     server.Start();
     for (int i = 0; i < 10; ++i) {
@@ -968,7 +1023,7 @@ int main(void)
     serial_task(0, MAX);
     concurrent_task(0, MAX);
 
-    /*
+/*
     {
         Account accountA("Paul", 100);
         Account accountB("Moira", 100);
@@ -983,7 +1038,7 @@ int main(void)
         thread1.join();
         thread2.join();
     }
-     */
+*/
 
     {
         std::cout << "main: " << g_i << '\n';
@@ -1031,6 +1086,14 @@ int main(void)
     // Async task with lambda triggered, thread: 0x111abae00
     // Lambda task in thread: 0x70000117f000
     // Async task with lambda finish, result: 2.10819e+13
+
+    auto fut2 = std::async(std::launch::async | std::launch::deferred, [&result] { // run either async or defered
+        cout << "Lambda task in thread: " << this_thread::get_id() << endl;
+        for (int i = 0; i <= MAX; i++) {
+            result += sqrt(i);
+        }
+    });
+
 
     // 对于面向对象编程来说，很多时候肯定希望以对象的方法来指定异步任务。
     Worker w(0, MAX);
