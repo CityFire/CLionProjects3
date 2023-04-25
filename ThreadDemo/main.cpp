@@ -7,10 +7,16 @@
 #include <sstream>
 #include <list>
 #include <queue>
+#include <stack>
 #include <set>
+#include <unordered_map>
 #include <string>
 #include <iomanip>
 #include <math.h>
+#include <exception>
+#include <numeric>
+#include <algorithm>
+#include <tuple>
 #include "XThread.h"
 #include "XMsgServer.h"
 using namespace std;
@@ -832,14 +838,18 @@ void concurrent_promise_task(int min, int max, promise<double>* result) {
         thread t(std::move(task), min, range);
         t.detach();
 
-        min = range + 1;
-        cout << "threads create finish" << endl;
-        double sum = 0;
-        for (auto& r : results) {
-            sum += r.get();
+        try {
+            min = range + 1;
+            cout << "threads create finish" << endl;
+            double sum = 0;
+            for (auto& r : results) {
+                sum += r.get();
+            }
+            result->set_value(sum); // 在任务计算完成之后，将总结过设置到promise对象上。
+            // 一旦这里调用了set_value，其相关联的future对象就会就绪。
+        } catch (...) {
+            result->set_exception(current_exception());
         }
-        result->set_value(sum); // 在任务计算完成之后，将总结过设置到promise对象上。
-        // 一旦这里调用了set_value，其相关联的future对象就会就绪。
         cout << "concurrent_task finish" << endl;
     }
 }
@@ -917,8 +927,1048 @@ int comp(vector<double>& vec1, vector<double>& vec2, vector<double>& vec3)
 }
  */
 
+//template <typename T>
+//class stack {
+//    std::atomic<node<T>*> head;
+//public:
+//    void push(const T& data)
+//    {
+//        node<T>* new_node = new node<T>(data);
+//        new_node->next = head.load(std::memory_order_relaxed);
+//        while(!head.compare_exchange_weak(new_node->next, new_node, std::memory_order_release, std::memory_order_relaxed));
+//    }
+//};
+
+// 这些锁对象还提供了一种防止最常见形式的死锁的方法:
+//void f()
+//{
+//    // ...
+//    unique_lock<mutex> lck1 {m1, defer_lock};  // 还未得到 m1
+//    unique_lock<mutex> lck2 {m2, defer_lock};
+//    unique_lock<mutex> lck3 {m3, defer_lock};
+//    // ...
+//    lock(lck1, lck2, lck3);  // 获取所有三个互斥锁
+//    // ...操作共享数据...
+//} // 隐式释放所有互斥锁
+
+//double comp4(vector<double>& v) // 如果v足够大则会产生多个任务
+//{
+//    if (v.size() < 10000) // 值得用并发机制吗？
+//        return accum(v.begin(), v.end(), 0.0);
+//    auto v0 = &v[0];
+//    auto sz = v.size();
+//
+//    auto f0 = async(accum, v0, v0+sz/4, 0.0);
+//    auto f1 = async(accum, v0+sz/4, v0+sz/2, 0.0);
+//    auto f2 = async(accum, v0+sz/2, v0+sz*3/4, 0.0);
+//    auto f3 = async(accum, v0+sz*3/4, v0+sz, 0.0);
+//
+//    return f0.get()+f1.get()+f2.get()+f3.get();
+//}
+
+//X f(Y);
+template <typename X, typename Y>
+void ff(Y y, promise<X>& p)
+{
+    try {
+        X res = f(y);   // 异步执行 f(y)
+        p.set_value(res); //... 给 res 计算结果 ...
+    }
+    catch (...) { // 哎呀：没能计算出 res
+        p.set_exception(current_exception());
+    }
+}
+
+template <typename X, typename Y>
+[[noreturn]] void user(Y arg)
+{
+    auto pro = promise<X>{};
+    auto fut = pro.get_future();
+    thread t {ff, arg, ref(pro)}; // 在不同线程上运行 ff
+    // ... 做一会别的事情 ...
+    X x = fut.get();
+    cout<<x.x<<'\n';
+    t.join();
+}
+
+template<class... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+//using var_t = std::variant<int, long, double, std::string>; // variant类型
+
+class Matrix {
+    double* elements;   // 指向所有元素的指针
+public:
+    Matrix() {}
+    Matrix (Matrix&& a) // 移动构造
+    {
+        elements = a.elements; // 复制句柄
+        a.elements = nullptr;  // 现在 a 的析构函数不用做任何事情了
+    }
+};
+
+class Vector
+{
+
+};
+
+//auto SVD(const Matrix& A) -> tuple<Matrix, Vector, Matrix>
+//{
+//    Matrix U, V;
+//    Vector S;
+//    // ...
+//    return make_tuple(U, S, V);
+//    return {U, S, V};
+//}
+//
+//void use()
+//{
+//    Matrix A, U, V;
+//    Vector S;
+//    // ...
+//    tie(U, S, V) = SVD(A); // 使用元组形式
+//    auto [U, S, V] = SVD(A); // 使用元组形式和结构化绑定
+//}
+
+//tuple SVD(const Matrix& A) // 从返回语句中推导出元组模板参数
+//{
+//    Matrix U, V;
+//    Vector S;
+//    // ...
+//    return {U, S, V};
+//}
+
+template <class T, class A1>
+std::shared_ptr<T> factory(A1&& a1)
+{
+    return std::shared_ptr<T>(new T(std::forward<A1>(a1)));// forward 告诉编译器将实参视为右值引用，
+    // 因此 T 的移动 构造函数(而不是拷贝构造函数)会被调用，来窃取该参数。它本质上就是个右 值引用的类型转换。
+}
+
+template <class T>
+class clone_ptr
+{
+private:
+    T* ptr;
+public:
+    // ...
+    clone_ptr(clone_ptr&& p)   // 移动构造函数
+        : ptr(p.ptr)  // 拷贝数据的表示
+    {
+        p.ptr = 0;   //  把源数据的表示置空
+    }
+    clone_ptr& operator=(clone_ptr&& p) // 移动赋值
+    {
+        std::swap(ptr, p.ptr);
+        return *this;   // 销毁目标的旧值
+    }
+};
+
+template <typename T>
+class vector_s {
+public:
+    vector_s(initializer_list<T>) {} // 初始化器列表构造函数
+};
+
+struct LengthInKM {
+    constexpr explicit LengthInKM(double d) : val(d) { }
+    constexpr double getValue() { return val; }
+private:
+    double val;
+};
+
+struct LengthInMile {
+    constexpr explicit LengthInMile(double d) : val(d) { }
+    constexpr double getValue() { return val; }
+    constexpr operator LengthInKM() { return LengthInKM(1.609344 * val); }
+private:
+    double val;
+};
+
+//constexpr Imaginary operator""i(long double x) { return Imaginary(x); }
+
+template <typename T>
+typename remove_reference<T>::type&&
+move(T&& param)
+{
+    using ReturnType = typename remove_reference<T>::type&&; // alias declaration
+    return static_cast<ReturnType>(param);
+}
+
+template<typename T>
+decltype(auto) move_(T&& param) // namespace std
+{
+    using ReturnType = remove_reference_t<T>&&;
+    return static_cast<ReturnType>(param);
+}
+
+template<typename T, typename A> class MyVector { };
+//template<typename T> using Vec = MyVector<T, MyAlloc<T> >;
+
+//typedef double (*analysis_fp)(const vector<Student_info>&);
+//using analysis_fb = double(*)(const vector<Student_info>&);
+
+struct empty_stack: std::exception
+{
+        const char* what() const throw();
+};
+
+template <typename T>
+class threadsafe_stack
+{
+private:
+    std::stack<T> data;
+    mutable std::mutex m; // 互斥量m可保证线程安全，就是对每个成员函数进行加锁保护。
+    // 保证在同一时间内，只 有一个线程可以访问到数据，所以能够保证修改数据结构的“不变量”时，不会被其他线程看 到。
+public:
+    threadsafe_stack(){}
+    threadsafe_stack(const threadsafe_stack& other)
+    {
+        std::lock_guard<std::mutex> lock(other.m);
+        data = other.data;
+    }
+    threadsafe_stack& operator=(const threadsafe_stack&) = delete;
+
+    void push(T new_value)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        data.push(std::move(new_value)); // 调用可能会抛出一个异常，不是拷贝/移动数据值，就是内存不足。
+    }
+    std::shared_ptr<T> pop()
+    {
+        std::lock_guard<std::mutex> lock(m);
+        if (data.empty()) throw empty_stack(); //
+        std::shared_ptr<T> const res(
+                std::make_shared<T>(std::move(data.top()))); // 也可能会抛出一个异常，有两方面的原因:
+        // 对 std::make_shared 的调用，可能无法分配出足够的内存去创建新的对象，并且内部数据需 要对新对象进行引用;
+        // 或者在拷贝或移动构造到新分配的内存中返回时抛出异常。两种情况 下，C++运行库和标准库能确保不会出现内存泄露，
+        // 并且新创建的对象(如果有的话)都能被正 确销毁。因为没有对栈进行任何修改，所以也不会有问题。
+        data.pop(); //
+        return res;
+    }
+
+    void pop(T& value)
+    {
+        std::lock_guard<std::mutex> lock(m);
+        if (data.empty()) throw empty_stack();
+        value = std::move(data.top()); //
+        data.pop(); //
+    }
+
+    bool empty() const
+    {
+        std::lock_guard<std::mutex> lock(m);
+        return data.empty();
+    }
+};
+
+template<class T>
+class thread_safe_queue
+{
+private:
+    mutable std::mutex mut;
+    std::queue<std::shared_ptr<T>> data_queue;
+    std::condition_variable data_cond;
+public:
+    thread_safe_queue() {}
+    thread_safe_queue(thread_safe_queue const& other)
+    {
+        std::lock_guard<std::mutex> lk(other.mut);
+        data_queue = other.data_queue;
+    }
+    void push(T new_value)
+    {
+        std::shared_ptr<T> data(
+                std::make_shared<T>(std::move(new_value)));
+        std::lock_guard<std::mutex> lk(mut);
+        data_queue.push(data);
+        data_cond.notify_one(); //
+    }
+
+    void wait_and_pop(T& value) //
+    {
+        std::unique_lock<std::mutex> lk(mut);
+        data_cond.wait(lk, [this] {
+            return !data_queue.empty();
+        });
+        value = std::move(*data_queue.front());
+        data_queue.pop();
+    }
+
+    std::shared_ptr<T> wait_and_pop() //
+    {
+        std::unique_lock<std::mutex> lk(mut);
+        data_cond.wait(lk, [this] {
+            return !data_queue.empty();
+        }); //
+
+//        std::shared_ptr<T> res(std::make_shared<T>(std::move(data_queue.front())));
+        std::shared_ptr<T> res = data_queue.front();
+        data_queue.pop();
+        return res;
+    }
+
+    bool try_pop(T& value)
+    {
+        std::lock_guard<std::mutex> lk(mut);
+        if (data_queue.empty())
+            return false;
+        value = std::move(*data_queue.front());
+        data_queue.pop();
+        return true;
+    }
+
+    std::shared_ptr<T> try_pop()
+    {
+        std::lock_guard<std::mutex> lk(mut);
+        if (data_queue.empty())
+            return std::shared_ptr<T>(); //
+//        std::shared_ptr<T> res(
+//                std::make_shared<T>(std::move(data_queue.front())));
+        std::shared_ptr<T> res = data_queue.front();
+        data_queue.pop();
+        return res;
+    }
+
+    bool empty() const
+    {
+        std::lock_guard<std::mutex> lk(mut);
+        return data_queue.empty();
+    }
+};
+
+// 单线程版本
+template<typename T>
+class queue_
+{
+private:
+    struct node
+    {
+        std::shared_ptr<T> data; //
+        std::unique_ptr<node> next;
+
+//        node(T data_);
+//        data(std::move(data_)) {}
+    };
+
+    std::unique_ptr<node> head;
+    node* tail;
+public:
+    queue_() : head(new node), tail(head.get()) {}//
+    queue_(const queue_& other) = delete;
+    queue_& operator=(const queue_& other) = delete;
+
+    std::shared_ptr<T> try_pop()
+    {
+        if (head.get() == tail)   //
+        {
+            return std::shared_ptr<T>();
+        }
+//        std::shared_ptr<T> const res(
+//                std::make_shared<T>(std::move(head->data)));
+        std::shared_ptr<T> const res(head->data); //
+        std::unique_ptr<node> const old_head = std::move(head);
+        head = std::move(old_head->next);//
+        return res;//
+    }
+
+    void push(T new_value)
+    {
+//        std::unique_ptr<node> p(new node(std::move(new_value)));
+        std::shared_ptr<T> new_data(
+                std::make_shared<T>(std::move(new_value))); //
+        std::unique_ptr<node> p(new node); //
+        tail->data = new_data;  //
+        node* const new_tail = p.get();
+        tail->next = std::move(p);
+        tail = new_tail;
+    }
+};
+
+template<typename T>
+class threadsafe_queue
+{
+private:
+    struct node
+    {
+        std::shared_ptr<T> data;
+        std::unique_ptr<node> next;
+    };
+    std::mutex head_mutex;
+    std::unique_ptr<node> head;
+    std::mutex tail_mutex;
+    node* tail;
+
+    node* get_tail()
+    {
+        std::lock_guard<std::mutex> tail_lock(tail_mutex);
+        return tail;
+    }
+
+    std::unique_ptr<node> pop_head()
+    {
+        std::lock_guard<std::mutex> head_lock(head_mutex);
+        if (head.get() == get_tail())
+        {
+            return nullptr;
+        }
+        std::unique_ptr<node> old_head = std::move(head);
+        head = std::move(old_head->next);
+        return old_head;
+    }
+public:
+    threadsafe_queue() : head(new node), tail(head.get()) {}
+    threadsafe_queue(const threadsafe_queue& other) = delete;
+    threadsafe_queue& operator=(const threadsafe_queue& other) = delete;
+
+    std::shared_ptr<T> try_pop()
+    {
+        std::unique_ptr<node> old_head = pop_head();
+        return old_head ? old_head->data : std::shared_ptr<T>();
+    }
+
+    void push(T new_value)
+    {
+        std::shared_ptr<T> new_data(std::make_shared<T>(std::move(new_value)));
+        std::unique_ptr<node> p(new node);
+        node* const new_tail = p.get();
+        std::lock_guard<std::mutex> tail_lock(tail_mutex);
+        tail->data = new_data;
+        tail->next = std::move(p);
+        tail = new_tail;
+    }
+};
+
+/*
+class thread_pool
+{
+        std::atomic_bool  done;
+        thread_safe_queue<std::function<void()> > work_queue;  // 1
+        std::vector<std::thread> threads; // 2
+        join_threads joiner; // 3
+
+        void worker_thread()
+        {
+            while(!done) // 4
+            {
+                std::function<void()> task;
+                if (work_queue.try_pop(task)) // 5
+                {
+                    task(); // 6
+                }
+                else
+                {
+                    std::this_thread::yield(); // 7
+                }
+            }
+        }
+
+public:
+    thread_pool() : done(false), joiner(threads)
+    {
+            unsigned const thread_count = std::thread::hardware_concurrency(); // 8
+            try
+            {
+                for (unsigned i = 0; i < thread_count; ++i) {
+                    threads.push_back(&thread_pool::worker_thread, this); // 9
+                }
+            }
+            catch (...)
+            {
+                done = true; // 10
+                throw;
+            }
+    }
+
+    ~thread_pool()
+    {
+            done = true; // 11
+    }
+
+    template<typename FunctionType>
+    void submit(FunctionType f)
+    {
+            work_queue.push(std::function<void()>(f)); // 12
+    }
+};
+ */
+
+class Widget : public std::enable_shared_from_this<Widget>
+{
+public:
+    // 完美转发参数的工厂方法
+    template<typename... Ts>
+    static std::shared_ptr<Widget> create(Ts&&... params);
+    void process();
+    std::vector<std::shared_ptr<Widget>> processedWidgets;
+//    Widget(Widget&& rhs) : s(std::move(rhs.s)) {
+//        ++moveCtorCalls;
+//    }
+//    Widget(Widget&& rhs) : s(std::forward<std::string>(rhs.s)) {
+//        ++moveCtorCalls;
+//    }
+private:
+    static  std::size_t moveCtorCalls;
+    std::string s;
+};
+
+void Widget::process() {
+    // 把指向当前对象的shared_ptr加入processedWidgets
+    processedWidgets.emplace_back(shared_from_this());
+}
+
+class WidgetID
+{
+
+};
+
+//std::shared_ptr<const Widget> fastLoadWidget(WidgetID id)
+//{
+//    static std::unordered_map<WidgetID, std::weak_ptr<const Widget>> cache;
+//    auto objPtr = cache[id].lock();  // objPtr is std::shared_ptr
+//                                     // to cached object
+//                                     // (or null if object's not in cache)
+//    if (!objPtr) {                // if not in cache
+//        objPtr = loadWidget(id);  // load it
+//        cache[id] = objPtr;       // cache it
+//    }
+//    return objPtr;
+//}
+
+template<typename T, typename... Ts>
+std::unique_ptr<T> _make_unique(Ts&&... params)
+{
+    return std::unique_ptr<T>(new T(std::forward<Ts>(params)...));
+}
+
+template<typename T, typename... Args>
+void printf(const char* s, const T& value, const Args&... args)
+{
+    while (*s) {
+        if (*s == '%' && *++s != '%') {
+            std::cout<<value;
+            printf(++s, args...);
+        }
+        std::cout<<*s++;
+    }
+    throw std::runtime_error("extra arguments provieded to printf");
+}
+
+template<typename T>
+constexpr T pi = T(3.1415926535897932385);
+
+template<typename T>
+T circular_area(T r)
+{
+    return pi<T> * r * r;
+}
+
+//template<typename T> constexpr T pi_v = unspecified;
+//constexpr double pi = pi_v<double>;
+
+//template<typename T>
+//auto size(const T& a) { return a.size(); }
+
+auto get_size = [](auto& m) { return m.size(); };
+
+constexpr int min(std::initializer_list<int> xs)
+{
+    int low = std::numeric_limits<int>::max();
+    for (int x : xs)
+        if (x < low)
+            low = x;
+    return low;
+}
+
+constexpr int m_ = min({1, 3, 2, 4});
+
+//template<typename T>
+//    where LessThanComparable<T>
+//const T& min(const T& x, const T& y)
+//{
+//    return x < y ? x : y;
+//}
+
+//template<GreaterThanComparable>
+//    const T& max(const T& x, const T& y)
+//{
+//    return x > y ? x : y;
+//}
+
+//generator<int> fibonacci()
+//{
+//    int a = 0;
+//    int b = 1;
+//
+//    while (true) {
+//        int next = a + b;
+//        co_yield a;
+//        a = b;
+//        b = next;
+//    }
+//}
+
+void do_something()
+{
+    cout<<"do_something"<<endl;
+}
+
+void do_something(int i)
+{
+    cout<<"do_something"<<i<<endl;
+}
+
+void do_something_else()
+{
+    cout<<"do_something_else"<<endl;
+}
+
+class background_task
+{
+public:
+    void operator()() const
+    {
+        do_something();
+        do_something_else();
+    }
+};
+
+//background_task f;
+//std::thread my_thread(f);
+std::thread my_thread((background_task()));
+std::thread my_thread1{background_task()};
+std::thread my_thread2([] {
+    do_something();
+    do_something_else();
+});
+
+
+struct func
+{
+    int& i;
+    func(int& i_) : i(i_) {}
+    void operator()()
+    {
+        for (unsigned j=0 ; j<1000000 ; ++j)
+        {
+            do_something(i);  // 1 潜在访问隐患:悬空引用
+        }
+    }
+};
+
+void oops()
+{
+    int some_local_state = 0;
+    func my_func(some_local_state);
+    std::thread my_thread(my_func);
+//    my_thread.join(); // 调用join()的行为，还清理了线程相关的存储部分,这样 std::thread 对象将不再与已经
+//    完成的线程有任何关联。这意味着，只能对一个线程使用一次join();一旦已经使用过
+//join()， std::thread 对象就不能再次加入了，当对其使用joinable()时，将返回false。
+    my_thread.detach(); // 2 不等待线程结束
+}                       // 3 新线程可能还在运行  持续执行func::operator();
+          // 可能会在do_something中调用 some_local_state的引用 --> 导致未定义行为
+
+void do_something_in_current_thread()
+{
+
+}
+
+void f_()
+{
+    int some_local_state = 0;
+    func my_func(some_local_state);
+    std::thread t(my_func);
+    try
+    {
+        do_something_in_current_thread();
+    }
+    catch (...)
+    {
+        t.join(); //
+        throw;
+    }
+    t.join(); //
+}
+
+class thread_guard
+{
+    std::thread& t;
+public:
+    explicit thread_guard(std::thread& t_) : t(t_) {}
+    ~thread_guard()
+    {
+        if (t.joinable()) // join()只能对给定的对象调用一次，所以对给已加入的线程再次进 行加入操作时，将会导致错误。
+        {
+            t.join();     //
+        }
+    }
+    thread_guard(thread_guard const&)=delete;  // 为了不让编译器自动生成它们。直接 对一个对象进行拷贝或赋值是危险的，
+    // 因为这可能会弄丢已经加入的线程。通过删除声明， 任何尝试给thread_guard对象赋值的操作都会引发一个编译错误。
+    thread_guard& operator=(thread_guard const&)=delete;
+};
+
+void ff_()
+{
+    int some_local_state = 0;
+    func my_func(some_local_state);
+    std::thread t(my_func);
+    thread_guard g(t);
+    do_something_in_current_thread();
+} //
+
+void edit_document(std::string const& filename)
+{
+
+}
+
+void fff_(int i, std::string const& s)
+{
+
+}
+
+void oops_(int some_param)
+{
+    char buffer[1024]; // buffer是一个指针变量，指向本地变量，然后本地变量通过buffer传递到新线 程中
+    sprintf(buffer, "%i", some_param);
+    std::thread t(fff_, 3, string(buffer)); // // 使用std::string，避免悬垂指针
+    t.detach();
+}
+
+struct widget_id
+{
+
+};
+
+struct widget_data
+{
+
+};
+
+void display_status()
+{
+
+}
+
+void process_widget_data(widget_data data)
+{
+
+}
+
+void update_data_for_widget(widget_id w, widget_data& data)
+{
+    //
+}
+
+void oops_again(widget_id w)
+{
+    widget_data data;
+//    std::thread t(update_data_for_widget, w, data); // x 错误
+    std::thread t(update_data_for_widget, w, std::ref(data)); // 接收到一个data变量的引用，而非一个data变量拷贝 的引用
+    display_status();
+    t.join();
+    process_widget_data(data);
+//    std::bind()
+}
+
+class X
+{
+public:
+    void do_lengthy_work(int num) {}
+};
+
+X my_x;
+int num(0);
+std::thread t(&X::do_lengthy_work, &my_x, num); // 可以传递一个成员函数指针作为线程函数， 并提供一个合适的对象指针作为第一个参数
+// 提供的参数可以移动，但不能拷贝。"移动"是指:原始对象中的数据转移给另一对 象，而转移的这些数据就不再在原始对象中保存了
+
+void some_function()
+{
+    cout<<"some_function...."<<endl;
+}
+
+void some_other_function()
+{
+    cout<<"some_other_function...."<<endl;
+}
+
+/*
+std::thread func_f()
+{
+    return std::thread(some_function);
+}
+
+std::thread g_()
+{
+    void some_other_function(int);
+    std::thread t(some_other_function, 42);
+    return t;
+}
+
+void _f_(std::thread t) {}
+void _g_()
+{
+    void some_function();
+    _f_(std::thread(some_function));
+    std::thread t(some_function);
+    _f_(std::move(t));
+}
+ */
+
+class scoped_thread
+{
+    std::thread t;
+public:
+    explicit scoped_thread(std::thread t_) : t(std::move(t_))
+    {
+        if (!t.joinable())
+            throw std::logic_error("No thread");
+    }
+    ~scoped_thread()
+    {
+        t.join();
+    }
+    scoped_thread(scoped_thread const&)=delete;
+    scoped_thread& operator=(scoped_thread const&)=delete;
+};
+
+//void _ff_() {
+//    int some_local_state;
+//    scoped_thread t(std::thread(func(some_local_state)));
+//    do_something_in_current_thread();
+//}
+
+class joining_thread
+{
+    std::thread t;
+public:
+    joining_thread() noexcept = default;
+    template<typename Callable, typename ... Args>
+    explicit joining_thread(Callable&& func, Args&& ... args) :
+      t(std::forward<Callable>(func), std::forward<Args>(args)...) {}
+    explicit joining_thread(std::thread t_) noexcept
+      : t(std::move(t_)) {}
+    joining_thread(joining_thread&& other) noexcept
+      : t(std::move(other.t)) {}
+    joining_thread& operator=(joining_thread&& other) noexcept
+    {
+        if (joinable()) {
+            join();
+        }
+        t = std::move(other.t);
+        return *this;
+    }
+    joining_thread& operator=(std::thread other) noexcept
+    {
+        if (joinable())
+            join();
+        t = std::move(other);
+        return *this;
+    }
+    ~joining_thread() noexcept
+    {
+        if (joinable())
+            join();
+    }
+    void swap(joining_thread& other) noexcept
+    {
+        t.swap(other.t);
+    }
+    std::thread::id get_id() const noexcept {
+        return t.get_id();
+    }
+    bool joinable() const noexcept
+    {
+        return t.joinable();
+    }
+    void join()
+    {
+        t.join();
+    }
+    void detach()
+    {
+        t.detach();
+    }
+    std::thread& as_thread() noexcept
+    {
+        return t;
+    }
+    const std::thread& as_thread() const noexcept
+    {
+        return t;
+    }
+};
+
+void do_work(unsigned id)
+{
+
+}
+
+void __f__()
+{
+    std::vector<std::thread> threads;
+    for (unsigned i = 0; i < 20; ++i)
+    {
+        threads.push_back(std::thread(do_work, i)); // 产生线程
+    }
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join)); // 对每个线程调用join()
+    // 将 std::thread 放入 std::vector 是向线程自动化管理迈出的第一步:并非为这些线程创建独 立的变量，并且直接加入，而是
+    // 把它们当做一个组。创建一组线程(数量在运行时确定)，可使 得这一步迈的更大
+}
+
+template<typename Iterator, typename T>
+struct accumulate_block
+{
+    void operator()(Iterator first, Iterator last, T& result)
+    {
+        result = std::accumulate(first, last, result);
+    }
+};
+
+template<typename Iterator, typename T>
+T parallel_accumulate(Iterator first, Iterator last, T init)
+{
+    unsigned long const length = std::distance(first, last);
+    if (!length) //
+        return init;
+    unsigned long const min_per_thread = 25;
+    unsigned long const max_threads =
+            (length + min_per_thread-1) / min_per_thread; // 2
+    unsigned long const hardware_threads =
+            std::thread::hardware_concurrency();
+    unsigned long const num_threads =  // 3
+            std::min(hardware_threads != 0 ? hardware_threads : 2, max_threads);
+    unsigned long const block_size = length / num_threads; // 每个线程中处理的元素数量,是范围中元素的总量除以线程的个数得出的
+    std::vector<T> results(num_threads);
+    std::vector<std::thread> threads(num_threads - 1);  // 需要注意的是，启动的线程数必须比num_threads 少1个，因为在启动之前已经有了一个线程(主线程)。
+    Iterator block_start = first;
+    for (unsigned long i = 0; i < (num_threads - 1); ++i)
+    {
+        Iterator block_end = block_start;
+        std::advance(block_end, block_size);  // 使用简单的循环来启动线程:block_end迭代器指向当前块的末尾
+        threads[i] = std::thread(     // 启动一个新线程为当 前块累加结果
+                accumulate_block<Iterator, T>(), block_start, block_end, std::ref(results[i]));// 需要注意的:因为不能直接从一个线程中
+                // 返回一个值，所以 需要传递results容器的引用到线程中去。另一个办法，通过地址来获取线程执行的结果;第4 章中，我们将使用期望(futures)完成这种方案。
+        block_start = block_end;  // 当迭代器指向当前块的末尾时，启动下一个块
+    }
+    accumulate_block<Iterator,T>() (
+            block_start, last, results[num_threads - 1]); // 启动所有线程后，9中的线程会处理最终块的结果。对于分配不均，因为知道最终块是哪一 个，那么这个块中有多少个元素就无所谓了。
+    std::for_each(threads.begin(), threads.end(), std::mem_fn(&std::thread::join)); //
+
+    return std::accumulate(results.begin(), results.end(), init); // 将所有结果进行累加
+}
+
+// 如果 std::thread 对象没有与任何执 行线程相关联， get_id() 将返回 std::thread::type 默认构造值，这个值表示“无线程”。
+std::thread::id master_thread;
+void some_core_part_of_algorithm()
+{
+    if (std::this_thread::get_id() == master_thread)
+    {
+//        do_master_thread_work();
+    }
+//    do_common_work();
+}
+
+std::list<int> some_list;  //
+std::mutex some_mutex;     //
+void add_to_list(int new_value)
+{
+    std::lock_guard<std::mutex> guard(some_mutex); //
+//    std::lock_guard guard(some_mutex); // C++17中添加了一个新特性，称为模板类参数推导，具体的模板参数类型推导则交给C++17的编译器完成
+//    std::scoped_lock guard(some_mutex);// C++17
+    some_list.push_back(new_value);
+}
+// 使用 std::lock_guard<std::mutex> ，使得这两个函数中对数据的访问 是互斥的:list_contains()
+// 不可能看到正在被add_to_list()修改的列表
+bool list_contains(int value_to_find)
+{
+    std::lock_guard<std::mutex> guard(some_mutex); //
+//    std::lock_guard guard(some_mutex);
+    return std::find(some_list.begin(), some_list.end(), value_to_find) != some_list.end();
+}
+
 int main(void)
 {
+//    user(Y{99});
+//    auto x = make_unique<int>(arg); // x是std::unique_ptr<int>
+
+    // C++ 20
+//    std::jthread
+
+    std::thread tt1(some_function); //
+    std::thread tt2 = std::move(tt1); // t1的所有权就转移给 了t2 t1和执行线程已经没有关联了，执行some_function的函数线程与t2关联
+    tt1 = std::thread(some_other_function); // 一个临时 std::thread 对象相关的线程启动了 所有者是一个临时对象——移动操作将会隐式的调用
+    std::thread tt3; // t3使用默认构造方式创建4，与任何执行线程都没有关联
+    tt3 = std::move(tt2);// 调用 std::move() 将与t2关联线程 的所有权转移到t3中5。因为t2是一个命名对象，需要显式的调用 std::move() 。
+    //tt1 = std::move(tt3);// 将some_function线程的所有权转移6给t1。不过，t1已经有了一个关联 的线程(执行some_other_function的
+    // 线程)，所以这里系统直接调用 std::terminate() 终止程 序继续运行。这样做(不抛出异常， std::terminate() 是noexcept函数)是
+    // 为了保证与 std::thread 的析构函数的行为一致。进行赋值时也需要满足这些条件(说明:不能通过赋一个新值
+    // 给 std::thread 对象的方式来"丢弃"一个线程
+
+//    _LIBCPP_INLINE_VISIBILITY
+//    thread& operator=(thread&& __t) _NOEXCEPT {
+//        if (!__libcpp_thread_isnull(&__t_))
+//            terminate();
+//        __t_ = __t.__t_;
+//        __t.__t_ = _LIBCPP_NULL_THREAD;
+//        return *this;
+//    }
+
+    auto customDeleter1 = [](Widget *pw) { };
+    auto customDeleter2 = [](Widget *pw) { };
+    std::shared_ptr<Widget> pw1(new Widget, customDeleter1);
+    std::shared_ptr<Widget> pw2(new Widget, customDeleter2);
+    std::shared_ptr<Widget> pw3(pw1);
+    std::vector<std::shared_ptr<Widget>> vpw{ pw1, pw2 };
+    // `std::shared_ptr`不能处理的另一个东西是数组。和`std::unique_ptr`不同的是，
+    // `std::shared_ptr`的API设计之初就是针对单个对象的，没有办法`std::shared_ptr<T[]>`。
+
+    vector_s<int> v3 {1,2,3,4,5};
+
+    vector<int> v = {7, 8};
+    for(int a : v) {
+        cout<<a<<endl;
+    }
+
+//    const char* msg = "The value of %s is about %g (unless you live in %s).\n";
+//    printf(msg, std::string("pi"), 3.14159, "Indiana");
+
+    constexpr LengthInKM marks[] = { LengthInMile(2.3), LengthInMile(0.76) };
+
+    auto spw = std::make_shared<Widget>();
+    cout<<spw.use_count()<<endl;
+    std::weak_ptr<Widget> wpw(spw); // wpw points to same Widget as spw. RC remains 1
+    cout<<spw.use_count()<<endl;
+    cout<<wpw.use_count()<<endl;
+    spw = nullptr;// RC goes to 0, and the
+                  // Widget is destroyed.
+                  // wpw now dangles
+
+    if (wpw.expired()) {
+        //  用expired来表示已经dangle。
+        cout<<"wpw now dangles"<<endl;
+    }
+
+    std::shared_ptr<Widget> spw1 = wpw.lock(); // if wpw's expired, spw1 is null
+    auto spw2 = wpw.lock(); // same as above, but uses auto
+    if (spw1 != nullptr) {
+        std::shared_ptr<Widget> spw3(wpw);// if wpw's expired, throw std::bad_weak_ptr
+    }
+
+    auto upw1(std::make_unique<Widget>()); // with make func
+    std::unique_ptr<Widget> upw2(new Widget); // without make func
+    auto spw11(std::make_shared<Widget>()); // with make func
+    std::shared_ptr<Widget> spw22(new Widget); // without make func
+
+
+
+    optional<int> var1 = 7;
+//    std::variant<int,string> var2 = 7;
+//    any var3 = 7;
+
+    auto x1 = *var1; // 对 optional 解引用
+//    auto x2 = get<int>(var2); // // 像访问 tuple 一样访问 variant
+//    auto x3 = any_cast<int>(var3); // 转换 any
+
+
     thread td1(increment);
     thread td2(increment);
     td1.join();
