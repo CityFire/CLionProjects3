@@ -9,6 +9,7 @@
 #include <queue>
 #include <stack>
 #include <set>
+#include <map>
 #include <unordered_map>
 #include <string>
 #include <iomanip>
@@ -16,6 +17,7 @@
 #include <exception>
 #include <numeric>
 #include <algorithm>
+#include <memory>
 #include <tuple>
 #include "XThread.h"
 #include "XMsgServer.h"
@@ -885,6 +887,29 @@ void concurrent_promise_task(int min, int max, promise<double>* result) {
 | unlock_shared| 解锁共享锁 |
  */
 
+class dns_entry
+{
+
+};
+
+class dns_cache
+{
+    std::map<std::string, dns_entry> entries;
+    mutable std::shared_mutex entry_mutex;
+public:
+    dns_entry find_entry(std::string const& domain) const
+    {
+        std::shared_lock<std::shared_mutex> lk(entry_mutex); // 使用 std::shared_lock<> 来保护共享和只读权限 这就使得多线程可以同时调用find_entry()，且不会出错.
+        std::map<std::string, dns_entry>::const_iterator const it = entries.find(domain);
+        return (it == entries.end()) ? dns_entry() : it->second;
+    }
+    void update_or_add_entry(std::string const& domain, dns_entry const& dns_details)
+    {
+        std::lock_guard<std::shared_mutex> lk(entry_mutex); // 提供独占访问权限 独占锁会阻止其他线程对数据结构进行修改，并且阻止线程调用find_entry()。
+        entries[domain] = dns_details;
+    }
+};
+
 atomic<int> x;
 void increment()
 {
@@ -1109,7 +1134,9 @@ template<typename T, typename A> class MyVector { };
 
 struct empty_stack: std::exception
 {
-        const char* what() const throw();
+        const char* what() const throw() {
+            return "empty stack!";
+        };
 };
 
 template <typename T>
@@ -1120,13 +1147,14 @@ private:
     mutable std::mutex m; // 互斥量m可保证线程安全，就是对每个成员函数进行加锁保护。
     // 保证在同一时间内，只 有一个线程可以访问到数据，所以能够保证修改数据结构的“不变量”时，不会被其他线程看 到。
 public:
-    threadsafe_stack(){}
+    threadsafe_stack() : data(std::stack<T>()){}
     threadsafe_stack(const threadsafe_stack& other)
     {
         std::lock_guard<std::mutex> lock(other.m);
-        data = other.data;
+        data = other.data; // 1 在构造函数体中的执行拷贝 堆栈可以拷贝——拷贝构造函数对互斥量上锁，再拷贝堆栈。
+        // 构造函数体中1的拷贝使用互斥 量来确保复制结果的正确性，这样的方式比成员初始化列表好。
     }
-    threadsafe_stack& operator=(const threadsafe_stack&) = delete;
+    threadsafe_stack& operator=(const threadsafe_stack&) = delete; // 1 赋值操作被删除
 
     void push(T new_value)
     {
@@ -1136,7 +1164,7 @@ public:
     std::shared_ptr<T> pop()
     {
         std::lock_guard<std::mutex> lock(m);
-        if (data.empty()) throw empty_stack(); //
+        if (data.empty()) throw empty_stack(); // 在调用pop前，检查栈是否 为空
         std::shared_ptr<T> const res(
                 std::make_shared<T>(std::move(data.top()))); // 也可能会抛出一个异常，有两方面的原因:
         // 对 std::make_shared 的调用，可能无法分配出足够的内存去创建新的对象，并且内部数据需 要对新对象进行引用;
@@ -1885,10 +1913,341 @@ bool list_contains(int value_to_find)
     return std::find(some_list.begin(), some_list.end(), value_to_find) != some_list.end();
 }
 
+class some_data
+{
+    int a;
+    std::string b;
+public:
+    void do_something() {}
+};
+
+class data_wrapper
+{
+private:
+    some_data data;
+    std::mutex m;
+public:
+    template<typename Function>
+    void process_data(Function func)
+    {
+        std::lock_guard<std::mutex> l(m);
+        func(data); // 1 传递“保护”数据给用户函数
+    }
+};
+
+some_data* unprotected;
+void malicious_function(some_data& protected_data)
+{
+    unprotected = &protected_data;
+}
+
+data_wrapper x_w;
+void foo_()
+{
+    x_w.process_data(malicious_function); // 2 传递一个恶意函数
+    unprotected->do_something();  // 3 在无保护的情况下访问保护数据  调用 unprotected->do_something() 的代码未能被标记为互斥。
+}
+// 切勿将受保护数据的指针或引用传递到互斥锁作用域之外，无论是 函数返回值，还是存储在
+// 外部可见内存，亦或是以参数的形式传递到用户提供的函数中去。
+/*
+template<typename T, typename Container=std::deque<T>>
+class stack_
+{
+public:
+    explicit stack_(const Container&);
+    explicit stack_(Container&& = Container());
+
+    template<class Alloc> explicit stack_(const Alloc&);
+    template<class Alloc> stack_(const Container&, const Alloc&);
+    template<class Alloc> stack_(Container&&, const Alloc&);
+    template<class Alloc> stack_(stack_&&, const Alloc&);
+
+    bool empty() const;
+    size_t size() const;
+    T& top();
+    T const& top() const;
+    void push(T const&);
+    void push(T&&);
+    void pop();
+    void swap(stack_&&);
+    template <class... Args> void emplace(Args&&... args); // C++14的新特性
+};
+*/
+
+class some_big_object
+{
+
+};
+void swap(some_big_object& lhs, some_big_object& rhs)
+{
+
+}
+class X_
+{
+private:
+    some_big_object some_detail;
+    std::mutex m;
+public:
+    X_(some_big_object const& sd) : some_detail(sd) {}
+
+    friend void swap(X_& lhs, X_& rhs)
+    {
+        if (&lhs == &rhs)
+            return;
+        std::lock(lhs.m, rhs.m); //
+        std::lock_guard<std::mutex> lock_a(lhs.m, std::adopt_lock); //
+        std::lock_guard<std::mutex> lock_b(rhs.m, std::adopt_lock); // 提供 std::adopt_lock 参数除了 表示
+        // std::lock_guard 对象可获取锁之外，还将锁交由 std::lock_guard 对象管理，而不需要 std::lock_guard 对象再去构建新的锁。
+
+//        std::unique_lock<std::mutex> lock_a(lhs.m, std::defer_lock); // 1 std::defer_lock 留下未上锁的互斥量
+//        std::unique_lock<std::mutex> lock_b(rhs.m, std::defer_lock); // 2 互斥量在这里上锁
+//        std::lock(lock_a, lock_b);
+
+//        std::scoped_lock guard(lhs.m, rhs.m); // 等价于使用了C++17的另一个特性:自动推导模板参数。
+//        std::scoped_lock<std::mutex, std::mutex> guard(lhs.m, rhs.m);// 等价于C++17可以通过 隐式参数模板类型推导机制， 通过传递的对形象类型来构造实例
+        swap(lhs.some_detail, rhs.some_detail);
+    } // 虽然 std::lock (和 std::scoped_lock<> )可以在这情况下(获取两个以上的锁)避免死锁，但它 没办法帮助你获取其中一个锁。
+};
+
+class hierarchical_mutex
+{
+    std::mutex internal_mutex;
+
+    unsigned long const hierarchy_value;
+    unsigned long previous_hierarchy_value;
+
+    static thread_local unsigned long this_thread_hierarchy_value; //
+
+    void check_for_hierarchy_violation()
+    {
+        if (this_thread_hierarchy_value <= hierarchy_value) //
+        {
+            throw std::logic_error("mutex hierarchy violated");
+        }
+    }
+
+    void update_hierarchy_value()
+    {
+        previous_hierarchy_value = this_thread_hierarchy_value; //
+        this_thread_hierarchy_value = hierarchy_value;
+    }
+
+public:
+    explicit hierarchical_mutex(unsigned long value) : hierarchy_value(value), previous_hierarchy_value(0) {}
+
+    void lock()
+    {
+        check_for_hierarchy_violation();
+        internal_mutex.lock(); //
+        update_hierarchy_value(); //
+    }
+
+    void unlock()
+    {
+        if (this_thread_hierarchy_value != hierarchy_value)
+            throw std::logic_error("mutex hierarchy violated"); //
+        this_thread_hierarchy_value = previous_hierarchy_value; //
+        internal_mutex.unlock();
+    }
+
+    bool try_lock()
+    {
+        check_for_hierarchy_violation();
+        if (!internal_mutex.try_lock()) // 当互斥量上的锁被一个线程持有，它将返回 false，而不是等待调用的线程，直到能够获取互斥量上的锁为止
+            return false;
+        update_hierarchy_value();
+        return true;
+    }
+};
+
+thread_local unsigned long hierarchical_mutex::this_thread_hierarchy_value(ULONG_MAX); // 它被初始化为最大值8，所以最初所有线程都能被锁住。
+// 因 为其声明中有thread_local，所以每个线程都有其拷贝副本，这样线程中变量状态完全独立， 当从另一个线程进行读取时，变量的状态也完全独立。
+
+
+hierarchical_mutex high_level_mutex(10000);  //
+hierarchical_mutex low_level_mutex(5000);    //
+hierarchical_mutex other_mutex(6000);  //
+
+int do_low_level_stuff() {}
+int low_level_func()
+{
+    std::lock_guard<hierarchical_mutex> lk(low_level_mutex); // 4
+    return do_low_level_stuff();
+}
+void high_level_stuff(int some_param) {}
+void high_level_func()
+{
+    std::lock_guard<hierarchical_mutex> lk(high_level_mutex); // 6
+    high_level_stuff(low_level_func()); // 5
+}
+void thread_a()  // 7
+{
+    high_level_func();
+}
+void do_other_stuff() {}
+void other_stuff()
+{
+    high_level_func();  // 10
+    do_other_stuff();
+}
+void thread_b() // 8
+{
+    std::lock_guard<hierarchical_mutex> lk(other_mutex); // 9
+    other_stuff();
+}
+
+void prepare_data()
+{
+
+}
+
+std::unique_lock<std::mutex> get_lock()
+{
+    extern std::mutex some_mutex;
+    std::unique_lock<std::mutex> lk(some_mutex);
+    prepare_data();
+    return lk; // 编译器负责调用 移动构造函数
+}
+
+void process_data()
+{
+    std::unique_lock<std::mutex> lk(get_lock()); // 直接转移 std::unique_lock 实例的所有权
+    do_something();
+}
+
+void get_and_process_data()
+{
+//    std::mutex the_mutex;
+//    std::unique_lock<std::mutex> my_lock(the_mutex);
+//    some_class data_to_process = get_next_data_chunk();
+//    my_lock.unlock();// 1 不要让锁住的互斥量越过process()函数的调用
+//    result_type result = process(data_to_process);
+//    my_lock.lock();// 2 为了写入数据，对互斥量再次上锁
+//    write_result(data_to_process, result);
+}
+
+class Y
+{
+private:
+    int some_detail;
+    mutable std::mutex m;
+    int get_detail() const
+    {
+        std::lock_guard<std::mutex> lock_a(m);  // 1
+        return some_detail;
+    }
+public:
+    Y(int sd) : some_detail(sd) {}
+    friend bool operator==(Y const& lhs, Y const& rhs)
+    {
+        if (&lhs == &rhs)
+            return true;
+        int const lhs_value = lhs.get_detail();  // 2
+        int const rhs_value = rhs.get_detail();  // 3
+        return lhs_value == rhs_value;  // 4
+    }
+};
+
+struct some_resource {
+    void do_something() {}
+};
+
+//std::shared_ptr<some_resource> resource_ptr;
+//void foo()
+//{
+//    if (!resource_ptr)
+//    {
+//        resource_ptr.reset(new some_resource);  // 1
+//    }
+//    resource_ptr->do_something();
+//}
+
+std::shared_ptr<some_resource> resource_ptr;
+std::mutex resource_mutex;
+void foo() {
+    std::unique_lock<std::mutex> lk(resource_mutex); // 所有线程在 此序列化
+    if (!resource_ptr)
+    {
+        resource_ptr.reset(new some_resource); // 只有初始化过程需要保 护
+    }
+    lk.unlock();
+    resource_ptr->do_something();
+}
+
+// 声名狼藉的"双重检查锁模式"
+void undefined_behaviour_with_double_checked_locking() {
+    if (!resource_ptr)  // 1
+    {
+        std::lock_guard<std::mutex> lk(resource_mutex);
+        if (!resource_ptr)  // 2
+        {
+            resource_ptr.reset(new some_resource); //
+        }
+    }
+    resource_ptr->do_something();//
+}
+
+// C++标准委员会也认为条件竞争的处理很重要，所以C++标准库提供
+//了 std::once_flag 和 std::call_once 来处理这种情况。比起锁住互斥量并显式的检查指针， 每个线程只需要使用
+// std::call_once 就可以，在 std::call_once 的结束时，就能安全的知道 指针已经被其他的线程初始化了。使用
+// std::call_once 比显式使用互斥量消耗的资源更少， 特别是当初始化完成后。
+std::shared_ptr<some_resource> resource_ptr_;
+std::once_flag resource_flag; // 1
+
+void init_resource()
+{
+    resource_ptr_.reset(new some_resource);//可以完整的进行一次初始化
+    resource_ptr_->do_something();
+}
+
+void re_foo()
+{
+    std::call_once(resource_flag, init_resource); //
+}
+
+/*
+class X
+{
+private:
+    connection_info connection_details;
+    connection_handle connection;
+    std::once_flag connection_init_flag;
+    void open_connection()
+    {
+        connection=connection_manager.open(connection_details);
+    }
+public:
+    X(connection_info const& connection_details_) :
+            connection_details(connection_details_)
+    {}
+    void send_data(data_packet const& data)  // 1
+    {
+        std::call_once(connection_init_flag,&X::open_connection,this); // 2
+        connection.send_data(data);
+    }
+    data_packet receive_data()  // 3
+    {
+        std::call_once(connection_init_flag,&X::open_connection,this); // 2
+        return connection.receive_data();
+    }
+};
+ */
+
+
 int main(void)
 {
 //    user(Y{99});
 //    auto x = make_unique<int>(arg); // x是std::unique_ptr<int>
+
+// 单线程安全代码:对一个空栈使用top()是未定义行为。对于共享的栈对象，这样的调 用顺序就不再安全了，
+// 因为在调用empty()1和调用top()2之间，可能有来自另一个线程的 pop()调用并删除了最后一个元素。
+// 这是一个经典的条件竞争，使用互斥量对栈内部数据进行 保护，但依旧不能阻止条件竞争的发生，这就是接口固有的问题。
+//    stack_<int> s_;
+//    if (!s_.empty()) {
+//        int const value = s_.top();
+//        s_.pop();
+//        do_something(value);
+//    }
 
     // C++ 20
 //    std::jthread
