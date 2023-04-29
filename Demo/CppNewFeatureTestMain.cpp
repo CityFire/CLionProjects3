@@ -509,6 +509,7 @@ int mainCPlusPlus11(void)  // CPlusPlus11
     // User-defined literals
     // 自定义字面值
 //    OutputType operator "" _suffix(unsigned long long);
+//      size_t operator "" _suffix(unsigned long long);
 
 // Control and query object alignment
 // 对象对齐

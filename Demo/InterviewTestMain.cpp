@@ -2,6 +2,9 @@
 // Created by wjc on 2023/4/1.
 //
 #include <iostream>
+#include <unordered_map>
+#include <vector>
+#include <typeinfo>
 using namespace std;
 
 int MyStrlen(char str[])
@@ -65,8 +68,418 @@ void test()
 
 }
 
-int mainInterview(void)
+class Drink {
+public:
+    void packing() {
+        //
+    }
+};
+
+class DrinkApple : public Drink {
+
+};
+
+// 桶排序
+// 题目描述
+//给定一个数组，求前 k 个最频繁的数字。 输入输出样例
+//输入是一个数组和一个目标值 k。输出是一个长度为 k 的数组。 Input: nums = [1,1,1,1,2,2,3,4], k = 2
+//Output: [1,2]
+//在这个样例中，最频繁的两个数是 1 和 2。
+vector<int> topKFrequent(vector<int>& nums, int k) {
+    unordered_map<int, int> counts;
+    int max_count = 0;
+    for (const int & num : nums) {
+        max_count = max(max_count, ++counts[num]);
+    }
+
+    vector<vector<int>> buckets(max_count + 1);
+    for (const auto & p : counts) {
+        buckets[p.second].push_back(p.first);
+    }
+
+}
+
+auto func2(int a, double b) -> decltype(a + b)
 {
+    return a + b;
+}
+
+template<class T1, class T2>
+auto mul(const T1 &t1, const T2 &t2) -> decltype(t1*t2)
+{
+    return t1*t2;
+}
+
+class A
+{
+public:
+    A(int i) : a(i) // 参数列表初始化
+    {
+        // a = i;
+    }
+
+    int a;
+};
+
+class B
+{
+public:
+    int data{ 1 };
+    int data2 = 1;
+    A tmp{ 10 };
+
+    string name{ "mike" };
+};
+
+//void func33(int a[])  // 形参中的数组不是数组，是指针变量，无法确定元素个数
+//{
+//    // 基于范围的for，这个范围要确定后，才能使用
+//    for (int & tmp : a) {
+//       cout << tmp << endl;
+//    }
+//}
+
+void func3(int a)
+{
+    cout<<__LINE__<<endl;
+}
+
+void func3(int* p)
+{
+    cout<<__LINE__<<endl;
+}
+
+int GetNum()
+{
+    return 3;
+}
+
+const int GetNum2()
+{
+    return 3;
+}
+
+constexpr int GetNum3()
+{// 常量表达式，发生在编译阶段
+    return 6;
+}
+
+/*
+ * constexpr函数的限制：
+ * 函数中只能有一个return语句（有极少特例）
+ * 函数必须返回值（不能是void函数
+ * 在使用前必须已有定义
+ * return返回语句表达式中不能使用非常量表达式的函数、全局数据，且必须是一个常量表达式
+ */
+constexpr int func01()
+{
+    // err,函数中只能有一个return语句
+    constexpr int a = 1;
+    return a;
+}
+
+constexpr int func02()
+{
+    // 允许包含typedef, using指令，静态断言
+    static_assert(1, "fail");
+
+    return 3;
+}
+
+// read of non-const variable 'aaa' is not allowed in a constant expression declared here
+// err, return返回语句表达式中不能使用非常量表达式的函数、全局数据，且必须是一个常量表达式
+//int aaa = 3;
+//constexpr int func03()
+//{
+//    return aaa;
+//}
+
+//int test01()
+//{
+//    return 10;
+//}
+//
+//constexpr int func04()
+//{// non-constexpr function 'test01' cannot be used in a constant expression declared here
+//    // err, 不能使用非常量表达式的函数
+//    return test01();
+//}
+
+class Date
+{
+public:
+    constexpr Date(int year, int month, int day) : year_(year), month_(month), day_(day)
+    {
+
+    }
+
+    constexpr int getYear()
+    {
+        return year_;
+    }
+
+    constexpr int getMonth()
+    {
+        return month_;
+    };
+
+    constexpr int getDay()
+    {
+        return day_;
+    }
+
+private:
+    int year_;
+    int month_;
+    int day_;
+};
+
+class AA
+{
+public:
+    AA(int x, int y)
+    {
+        a = x;
+        b = y;
+    }
+protected:
+    int a;
+    int b;
+};
+
+class BB : public AA
+{
+public:
+#if 0
+    // 通过参数列表给基类构造函数传参
+    BB(int x, int y) : AA(x, y)
+    {
+
+    }
+#endif
+    // 继承构造 （C++11允许派生类继承基类的构造函数（默认构造函数、复制构造函数、移动构造函数除外）
+    // 注意：
+    // 继承的构造函数只能初始化基类中的成员变量，不能初始化派生类的成员变量
+    // 如果基类的构造函数被声明为私有，或者派生类是从基类中虚继承，那么不能继承构造函数
+    // 一旦使用继承构造函数，编译期不会再为派生类生成默认构造函数
+    using AA::AA;
+
+    void display()
+    {
+        cout<<"a = "<<a<<", b = "<<b<<endl;
+    }
+};
+
+class Test
+{
+public:
+    // 委托构造，一定要通过初始化列表方式
+    Test() : Test(1, 'a')
+    {
+
+    }
+
+    Test(int x) : a(x)
+    {
+
+    }
+
+    Test(char x) : b(x)
+    {
+
+    }
+
+    Test(int x, char y) : a(x), b(y)
+    {
+
+    }
+
+    int a;
+    char b;
+};
+
+// final阻止类的进一步派生，虚函数的进一步重写
+class A1 final
+{
+    int a;
+};
+
+//class A2 : public A1
+//{
+//
+//};
+
+class B1
+{
+public:
+    B1() = default;  // 让编译器提供一个默认的构造函数，效率比用户写的高
+    // default只能修饰类中默认提供的成员函数：无参构造，拷贝构造，赋值运算符重载，析构函数等
+    B1(int i)
+    {
+        // 写了带参的构造函数，编译器不会提供无参的构造函数
+        a = i;
+    }
+    B1(const B1&) = delete;
+    B1& operator=(const B1&) = delete; // 赋值运算符重载函数
+    B1(int, int) = delete;
+    void *operator new(size_t) = delete;
+    void *operator new[](size_t) = delete;
+    virtual void func() final {}
+    virtual void func(int a) {}
+    int a;
+};
+
+class B2 : public B1
+{
+public:
+//    virtual void func() {}
+    virtual void func(int a) override {}
+};
+
+/*
+ * char const *
+ * unsigned long long
+ * long double
+ * char const *, size_t
+ * wchar_t const *, size_t
+ * char16_t const *, size_t
+ * char32_t const *, size_t
+ */
+
+// 自定义字面量，名字要求 operator"" xxx
+// 只需给第一个参数传参，第二个参数自动推算，测第一个参数的长度，给第二个参数赋值
+size_t operator"" _len(char const *str, size_t n)
+{
+    return n;
+}
+
+char const * operator"" _str(char const *buf, size_t n)
+{
+    return buf;
+}
+
+char const * operator"" _test(char const *tmp)
+{
+    return tmp;
+}
+
+int main(void) // Interview
+{
+
+    Test tobj;
+    cout<<tobj.a<<endl;
+    cout<<tobj.b<<endl;
+
+    BB objb(10, 20);
+    objb.display();
+
+    B1 objb1;
+//    B1 objb2 = objb1; // 拷贝构造
+
+//    objb2 = objb1; // 赋值运算符重载函数
+
+    B1 objb3(10);
+
+//    B1 *bbp1 = new B1;  // operator new被禁用
+//    B1 *bbp1 = new B1[10];  // operator new被禁用
+
+    cout<< "abc"_len <<endl;
+    cout<< "abc"_str<<endl;
+    cout<< 123_test<<endl;
+
+    // 原生字符串字面值
+    cout<<R"(hello, \n world)"<<endl;
+    string strhello = R"(hello \4 \r
+            abc, mike
+            hello\n)";
+    cout<<endl;
+    cout<<strhello<<endl;
+
+    // New string literals
+    // 新的字符串字面值
+    // 增加了char16_t和char32_t类型
+    // 可以直接定义UTF字面值
+    // 支持原始字面值(不转义)
+    char16_t string[] = uR"*(This is a "raw UTF-16" string.)*";
+    std::cout << u8"This is a Unicode Character: \u56fd." << std::endl;
+    std::cout << u8R"XXX(I'm a "raw UTF-8" string. )XXX" << std::endl;
+    std::wcout << uR"aa(This is a "raw UTF-16" string.)aa" << std::endl;
+    std::cout << UR"(This is a"raw UTF-32" string.)" << std::endl;
+
+    // non-constexpr function 'GetNum' cannot be used in a constant expression declared here
+    // 枚举成员初始化，必须是整型常量
+    //enum {e1 = GetNum(), e2}; // 枚举类型， err
+    //enum {e1 = GetNum2(), e2}; // 枚举类型， err
+
+    enum {e1=GetNum3(), e2};
+
+    constexpr int temp = GetNum3(); // ok, 发生在编译阶段
+    enum {ta1 = temp, ta2}; // ok
+
+    int *p1 = NULL;
+    int *p2 = 0;
+
+    func3(0);
+    func3(nullptr);
+
+//    bool tflag = true;
+    // 运行时，检查条件，如果条件为真，往下执行，如果条件为假，中断，提示错误
+//    assert(tflag == true);
+
+    // 静态断言
+//    static_assert("常量条件表达式条件，"提示的字符串");
+//    static_assert(sizeof(void *) == 4, "64位系统不支持");
+
+    B obj;
+    cout<<obj.data<<endl;
+    cout<<obj.data2<<endl;
+    cout<<obj.tmp.a<<endl;
+    cout<<obj.name<<endl;
+
+//    int &abc = &1;
+
+    auto ia = 10;
+    auto ja = 11.2;
+    auto jk = mul(ia, ja);
+    cout<<"jk = "<<jk<<endl;
+
+    int aaa = 10;
+    double bbb = 11.1;
+    auto c = func2(aaa, bbb);
+    cout<<"c ="<<c<<endl;
+    int ii;
+    decltype(ii) jj = 0;
+    cout<<typeid(jj).name()<<endl;
+
+    float ca;
+    double cb;
+    decltype(ca + cb) cc;
+    cout<<typeid(cc).name()<<endl;
+    
+    vector<int> tmp;
+    decltype(tmp.begin()) kk;
+    for (kk = tmp.begin(); kk != tmp.end(); ++kk) {
+        cout<<typeid(kk).name()<<endl;
+    }
+
+    // 强类型枚举，enum 后面加上class或struct修饰
+    enum class Status {Ok, Error};
+    enum struct Status2 {Ok, Error};
+
+    //Status sflag = Ok; // err,必须枚举类型的作用域
+    Status sflag = Status::Ok;
+
+    // 强类型枚举，可以指定成员变量的类型
+    enum struct Status3:char {Ok, Error};
+    cout<< sizeof(Status3::Ok)<<endl;
+
+    enum struct Status4:long long {Ok, Error};
+    cout<< sizeof(Status4::Ok)<<endl;
+
+    enum{OK, ERROR} flag; // 匿名类型的枚举变量
+    decltype(flag) flag2;
+
+
     char str1[] = "abc";
 
     char str2[] = "abc";
