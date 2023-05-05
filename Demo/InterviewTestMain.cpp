@@ -5,9 +5,13 @@
 #include <unordered_map>
 #include <vector>
 #include <typeinfo>
+#include <type_traits>
+#include <array>
+#include <functional>
+
 using namespace std;
 
-int MyStrlen(char str[])
+int MyStrlen(char str[]) // 指针变量
 {
 
     return (int)(sizeof(str)-1);
@@ -363,8 +367,435 @@ char const * operator"" _test(char const *tmp)
     return tmp;
 }
 
+// 通过typedef给一个类型起别名，不能新建类型
+typedef int int32;
+using my_int = int;  // C++11方式
+
+// 类模板支持默认的模板参数
+template<class T, class T2=int> //类模板的模板参数必须是从右往左
+class A3
+{
+
+};
+
+// C++11才支持，函数模板带默认的模板参数
+template<class T = int, class T2> void fun05(T a, T2 b) {}
+
+// 可变参数的模板函数
+template<class ... T> // T叫模板参数包
+void func08(T... args) // args叫函数参数包
+{
+    // 获取可变参数的个数
+    cout<<"num="<< sizeof...(args)<<endl;
+}
+
+//#if 1
+// 递归终止函数
+void debug()
+{
+    cout<<"empty"<<endl;
+}
+//#endif
+
+#if 0
+// 递归终止函数2
+template<class T>
+void debug(T tmp)
+{
+    cout<<"tmp = "<<tmp<<endl;
+}
+#endif
+
+// 可变参数的模板函数
+// 参数包展开函数
+template<class T1, class ... T2>
+void debug(T1 first, T2... last)
+{
+    cout<<first<<endl;
+    // 递归调用函数本身
+    debug(last...);
+}
+
+// 非递归方式展开参数包
+template<class T>
+void print(T tmp)
+{
+    cout<<tmp<<endl;
+}
+
+//可变参数的模板函数
+template<class ... T>
+void expand(T ... args)
+{
+    // 逗号运算符
+    // 初始化列表
+    int a[] = { (print(args), 0)... };
+}
+
+// 继承方式展开可变参数模板类
+// 1、可变参数模板声明
+// 2、递归继承模板类
+// 3、边界条件
+
+//  1、可变参数模板声明
+template<class ...T> class Car {};
+
+// 2、递归继承模板类
+template<class Head, class ... Tail>
+class Car<Head, Tail...> : public Car<Tail...>
+{// 递归继承本身
+public:
+    Car()
+    {
+        cout<<"type = "<< typeid(Head).name()<<endl;
+    }
+};
+
+// 3、边界条件
+template<> class Car<> {};
+
+// 1、变长模板声明
+// 2、变长模板类定义
+// 3、边界条件
+
+// 1、变长模板声明
+template<int ... last>
+class Test09
+{
+
+};
+
+// 2、变长模板类定义
+template<int first, int ... last>
+class Test09<first, last...>
+{
+public:
+    static const int val = first * Test09<last...>::val;
+};
+
+// 3、边界条件
+template<>
+class Test09<>
+{
+public:
+    static const int val = 1;
+};
+
+int & func10()
+{
+    static int tmp;
+    return tmp;
+}
+
+int func11()
+{
+    return 11;
+}
+
+void test9(int &tmp)
+{
+    cout<<"左值="<<tmp<<endl;
+}
+
+void test10(int && tmp)
+{
+    cout<<"右值="<<tmp<<endl;
+}
+
+class CCPPMyString
+{
+public:
+    CCPPMyString(char *tmp = "abc")
+    {// 普通构造函数
+        len = strlen(tmp); // 长度
+        str = new char[len+1]; // 堆区申请空间
+        strcpy(str, tmp); // 拷贝内容
+
+        cout<<"普通构造函数 str = "<<str<<endl;
+    }
+    CCPPMyString(const CCPPMyString &tmp)
+    {// 拷贝构造函数
+        len = tmp.len;
+        str = new char[len+1];
+        strcpy(str, tmp.str);
+
+        cout<<"拷贝构造函数 tmp.str = "<<tmp.str<<endl;
+    }
+    // 移动构造函数
+    // 参数是非const的右值引用
+    CCPPMyString(CCPPMyString && t)
+    {
+        str = t.str; // 拷贝地址，没有重新申请内存
+        len = t.len;
+
+        // 原来指针置空
+        t.str = nullptr;
+        cout<<"移动构造函数"<<endl;
+    }
+    CCPPMyString& operator=(const CCPPMyString& tmp)
+    {// 赋值运算符重载函数
+        if (&tmp == this)
+        {
+            return *this;
+        }
+
+        // 先释放原来的内容
+        len = 0;
+        delete []str;
+
+        // 重新申请内容
+        len = tmp.len;
+        str = new char[len + 1];
+        strcpy(str, tmp.str);
+
+        cout<<"赋值运算符重载函数 tmp.str = "<<tmp.str<<endl;
+
+        return *this;
+    }
+    // 移动赋值函数
+    // 参数为非const的右值引用
+    CCPPMyString& operator=(CCPPMyString&& tmp)
+    {// 移动赋值函数
+        if (&tmp == this)
+        {
+            return *this;
+        }
+
+        // 先释放原来的内容
+        len = 0;
+        delete []str;
+
+        // 无需重新申请堆区空间
+        len = tmp.len;
+        str = tmp.str; // 地址赋值
+        tmp.str = nullptr;
+
+        cout<<"移动赋值函数 str = "<<str<<endl;
+
+        return *this;
+    }
+    ~CCPPMyString()
+    {
+        cout<<"析构函数:";
+        if (str != nullptr)
+        {
+            delete []str;
+            str = nullptr;
+            len = 0;
+            cout<<"已操作delete";
+        }
+        cout<<endl;
+    }
+private:
+    char *str = nullptr;
+    int len = 0;
+};
+
+CCPPMyString funcString() // 返回普通对象，不是引用
+{
+    CCPPMyString obj("mikejson");
+    cout<<"&obj:"<<(void *)&obj<<endl;
+    // 返回值优化技术
+    // 防止返回值优化选项
+    // g++ xxx.cpp -fno-elide-constructors -std=c++11
+    return obj;
+}
+
+template<class T> void func(const T &)
+{
+   cout<<"const T &"<<endl;
+}
+
+template<class T> void func(T &)
+{
+    cout<<"T &"<<endl;
+}
+
+// add 2023-5-2 :  T &&
+template<class T> void func(T &&)
+{
+    cout<<"T &&"<<endl;
+}
+
+//template<class T> void forward_val(const T &tmp) // const T &
+//{
+//    func(tmp); // 定义
+//}
+//
+//template<class T> void forward_val(T &tmp) // T &
+//{
+//    func(tmp); // 定义
+//}
+
+// 等价于上面两个函数  引用折叠
+template<class T> void forward_val(T &&tmp) // 参数为右值引用
+{
+    // std::forward保存参数的左值、右值属性
+    func(std::forward<T>(tmp)); // 定义
+}
+
+template<typename T>
+void f(T param) // name是一个数组，但是 T被推导为 const char *
+{
+    cout<< typeid(param).name()<<" "<< typeid(T).name()<<endl;
+}
+
+template<typename T>
+void funf(T& param) // T被推导为const char[13] param被推导为const char(&)[13]
+{
+    cout<< typeid(param).name()<<" "<< typeid(T).name()<<endl;
+}
+
+//void myFunc(int param[]);
+//void myFunc(int *param);
+
+//在编译期间返回一个数组大小的常量值（
+//数组形参没有名字，因为我们只关心数组
+//的大小）
+template<typename T, std::size_t N>
+constexpr std::size_t arraySize(T (&)[N]) noexcept
+{
+    return N;
+}
+
+void someFunc(int, double) {}	//someFunc是一个函数，类型是void(int, double)
+
+template<typename T>
+void f1f(T param) {}		// 传值
+
+template<typename T>
+void f2f(T & param) {}		// 传引用
+
+
+
+
+
 int main(void) // Interview
 {
+
+    // 在C++中不止是数组会退化为指针，函数类型也会退化为一个函数指针
+    f1f(someFunc);			//param被推导为指向函数的指针，类型是void(*)(int, double)
+    f2f(someFunc);			//param被推导为指向函数的引用，类型为void(&)(int, double)
+
+    int keyVals[] = {1,3,5,7,9,11,22,25};	// keyVals有七个元素
+    int mappedVals[arraySize(keyVals)]; // mappedVals也有七个
+
+    std::array<int, arraySize(keyVals)> mappedvalss; // mappedVals的size为7
+
+    int va = 10;
+    function<int(int)> f1 = [](int a) {
+        return a + 1;
+    };
+    cout<<f1(9)<<endl;
+
+    function<int(int)> f2 = bind(
+            [](int a) { return a + 1; },
+            std::placeholders::_1
+          );
+    cout<<f2(9)<<endl;
+
+    auto f4 = [](int x, int y) -> int {
+        return x + y;
+    };
+//    auto f4 = [=](int x, int y) -> int {
+//        cout<<"va = "<<va<<endl;
+//        return x + y;
+//    };
+    cout<<f4(1, 3)<<endl;
+
+    decltype(f4) tmpp = f4;
+    cout<<tmpp(2, 2)<<endl;
+
+    // 定义一个函数指针类型
+    typedef int (*PFUNC)(int, int);
+    PFUNC  pp1 = f4; // lambda表达式转换为函数指针， ok lambda表达式不允许捕获外部变量
+    cout<<pp1(10, 10)<<endl;
+
+
+    const char name[] = "J. P. Briggs"; //name 的类型是 const char[13]
+    const char * ptrToName = name; // 数组退化为指针
+    f(name);
+    funf(name);
+
+    int h = 0;
+    const int &g = 1;
+
+    // 需要给forward_val()重载2个版本， const T &, T &
+    forward_val(h); // T &
+    forward_val(g); // const T &
+    forward_val(111); // const T &  // add 2023-5-2 :  T &&
+
+    int zz = 10; // zz为左值
+    // Rvalue reference to type 'int' cannot bind to lvalue of type 'int'
+    //int && yy = zz; // err, 左值不能绑定到右值引用
+    int && xx = std::move(zz); // 将一个左值转移到右值
+    cout<<"xx="<<xx<<endl;
+
+//    CCPPMyString tmpMove("abc"); // 实例化一个对象
+//    tmpMove = funcString();
+
+//    CCPPMyString tmpst = funcString();
+//    cout<<"&tmpst:"<<(void *)&tmpst<<endl;
+
+    CCPPMyString &&objtmp = funcString();
+    cout<<"&objtmp:"<<(void *)&objtmp<<endl;
+
+
+// 相对于左值，右值表示字面常量、表达式、函数的非引用返回值等。
+// 引用：给一个内存起一个别名，定义时必须初始化
+// 左值引用是对一个左值进行引用的类型，右值引用则是对一个右值进行引用的类型。
+    // 左值引用
+    int aaaa;
+    int &bbbb = aaaa; // ok
+    //int &c = 1; // err
+    const int &dd = aaaa; // ok
+    const int &ee = 1; // ok 常量引用
+    const int &ff = func10(); // ok
+    const int temp1 = 10;
+    const int &gg = temp1;
+
+    // const int & 万能引用
+
+    int abc = 10;
+    test9(abc);
+    test10(12);
+
+    /*
+    {
+        // 右值引用
+        int && a = 10;
+        int && b = func11();
+        int i = 10;
+        int j = 20;
+        int && c = i + j;
+    }
+     */
+
+    cout<<Test09<2, 3, 4, 5>::val<<endl;
+
+    Car<int, char *, double> bmw;
+
+    expand(1, 2, 3, 4);
+
+    debug(1, 2, 3, 4);
+    /**
+     * 函数递归调用过程：
+     * debug(1, 2, 3, 4);
+     * debug(2, 3, 4);
+     * debug(3, 4);
+     * debug(4);
+     * debug();
+     */
+    debug(1, "mike", "hello", 3.55, 'a');
+
+    func08<int>(10);
+    func08<int, int>(10, 20);
+    func08<char, int>('a', 10);
+    func08<char, char *, int>('a', "abc", 10);
+
+
+    // 判断2个类型是否一致
+    cout<<is_same<int32, my_int>::value<<endl;
 
     Test tobj;
     cout<<tobj.a<<endl;
